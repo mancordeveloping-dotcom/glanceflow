@@ -5,6 +5,7 @@ import Header from '@/components/Header'
 import BackgroundFX from '@/components/BackgroundFX'
 import PWARegister from '@/components/PWARegister'
 import { ToastProvider } from '@/components/Toast'
+import { Analytics } from '@vercel/analytics/next'
 
 const geist = Geist({
   variable: '--font-geist-sans',
@@ -65,6 +66,7 @@ export default function RootLayout({
   return (
     <html lang="it" className={`${geist.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col text-gray-900">
+        <Analytics />
         <PWARegister />
         <BackgroundFX />
         <ToastProvider>

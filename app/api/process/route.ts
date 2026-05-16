@@ -7,6 +7,33 @@ import type { ParsedTask } from '@/types'
 const FREE_LIMIT = 3
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY ?? '')
 
+// Simple in-memory rate limiter: max 5 requests per minute per IP
+const rateLimitMap = new Map<string, { count: number; resetAt: number }>()
+const RATE_LIMIT = 5
+const RATE_WINDOW_MS = 60_000
+
+function checkRateLimit(ip: string): boolean {
+  const now = Date.now()
+  const entry = rateLimitMap.get(ip)
+  if (!entry || now > entry.resetAt) {
+    rateLimitMap.set(ip, { count: 1, resetAt: now + RATE_WINDOW_MS })
+    return true
+  }
+  if (entry.count >= RATE_LIMIT) return false
+  entry.count++
+  return true
+}
+
+function friendlyError(message: string): string {
+  if (message.includes('LIMIT_REACHED')) return 'You have reached your daily limit. Upgrade to Premium for unlimited processing.'
+  if (message.includes('quota') || message.includes('429')) return 'AI service is busy right now. Please try again in a few seconds.'
+  if (message.includes('timeout') || message.includes('DEADLINE')) return 'The AI took too long to respond. Please try again.'
+  if (message.includes('file type') || message.includes('Invalid')) return 'Invalid image format. Please use PNG, JPG or WEBP.'
+  if (message.includes('No tasks found')) return 'No tasks found in this screenshot. Try a different image with text content.'
+  if (message.includes('parse') || message.includes('JSON')) return 'Could not read the AI response. Please try again.'
+  return 'Something went wrong. Please try again.'
+}
+
 const PROMPT = `Extract all tasks, to-dos, action items, reminders, or events from this screenshot.
 
 Return ONLY valid JSON, no other text:
@@ -44,6 +71,12 @@ function sanitizeType(t: string): ParsedTask['type'] {
 }
 
 export async function POST(req: NextRequest) {
+  // Rate limit by IP
+  const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown'
+  if (!checkRateLimit(ip)) {
+    return NextResponse.json({ error: 'Too many requests. Please slow down.' }, { status: 429 })
+  }
+
   // Auth
   const supabase = await createSupabaseServer()
   const { data: { user } } = await supabase.auth.getUser()
@@ -102,6 +135,6 @@ export async function POST(req: NextRequest) {
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err)
     console.error('[api/process]', message)
-    return NextResponse.json({ error: message }, { status: 500 })
+    return NextResponse.json({ error: friendlyError(message) }, { status: 500 })
   }
 }

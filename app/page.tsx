@@ -14,13 +14,26 @@ const stats = [
   { value: '100%', label: 'Free to start' },
 ]
 
+const testimonials = [
+  { name: 'Marco R.', role: 'Freelance Designer', avatar: 'M', text: "Finally I stop losing tasks in WhatsApp chats. GlanceFlow extracts everything in seconds — it's magic." },
+  { name: 'Sara T.', role: 'Project Manager', avatar: 'S', text: 'I upload my meeting notes screenshots and get a full task list instantly. Saves me 30 minutes every day.' },
+  { name: 'Luca B.', role: 'Startup Founder', avatar: 'L', text: "The AI is scary accurate. It picks up every action item from email screenshots I didn't even notice." },
+]
+
+const faqs = [
+  { q: 'What types of screenshots work?', a: "Any image — WhatsApp messages, emails, notes, Slack, documents. If there's text, GlanceFlow extracts tasks from it." },
+  { q: 'How many screenshots can I process for free?', a: '3 screenshots per day, forever. Upgrade to Premium for unlimited processing.' },
+  { q: 'Is my data private?', a: 'Yes. Screenshots are processed by Gemini AI and immediately discarded. Only the extracted tasks are saved in your private database.' },
+  { q: 'Does it work on mobile?', a: 'Yes! GlanceFlow is a PWA — install it on your iPhone or Android from the browser and use it like a native app.' },
+  { q: 'What languages does it support?', a: 'Any language. Gemini AI understands Italian, English, Spanish, French, and many more.' },
+]
+
 export default function HomePage() {
   return (
     <div className="space-y-32">
 
       {/* Hero */}
       <section className="relative text-center space-y-10 pt-10">
-        {/* Glow behind title */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-violet-600/20 rounded-full blur-[100px] pointer-events-none" />
 
         <div className="relative space-y-6 animate-fade-up">
@@ -88,6 +101,61 @@ export default function HomePage() {
 
       {/* Mockup demo */}
       <MockupDemo />
+
+      {/* Testimonials */}
+      <section className="space-y-12">
+        <div className="text-center space-y-3">
+          <h2 className="text-4xl font-extrabold text-white">Loved by users</h2>
+          <p className="text-slate-400 text-lg">Join thousands turning screenshots into done tasks.</p>
+        </div>
+        <div className="grid sm:grid-cols-3 gap-6">
+          {testimonials.map((t, i) => (
+            <div
+              key={t.name}
+              className="card-3d glass inner-highlight rounded-3xl p-6 space-y-4 border border-white/5 animate-fade-up"
+              style={{ animationDelay: `${i * 0.12}s`, opacity: 0 }}
+            >
+              <div className="flex items-center gap-3">
+                <div className="h-10 w-10 rounded-full bg-gradient-to-br from-violet-500 to-cyan-500 flex items-center justify-center text-white font-bold text-sm shrink-0">
+                  {t.avatar}
+                </div>
+                <div>
+                  <p className="font-bold text-white text-sm">{t.name}</p>
+                  <p className="text-xs text-slate-500">{t.role}</p>
+                </div>
+              </div>
+              <div className="flex gap-0.5">
+                {[...Array(5)].map((_, j) => (
+                  <svg key={j} className="h-4 w-4 text-amber-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                  </svg>
+                ))}
+              </div>
+              <p className="text-sm text-slate-300 leading-relaxed italic">&ldquo;{t.text}&rdquo;</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* FAQ */}
+      <section className="max-w-2xl mx-auto space-y-10">
+        <div className="text-center space-y-3">
+          <h2 className="text-4xl font-extrabold text-white">FAQ</h2>
+          <p className="text-slate-400">Everything you need to know.</p>
+        </div>
+        <div className="space-y-4">
+          {faqs.map((item, i) => (
+            <div
+              key={item.q}
+              className="card-3d glass inner-highlight rounded-2xl p-6 space-y-2 border border-white/5 animate-fade-up"
+              style={{ animationDelay: `${i * 0.08}s`, opacity: 0 }}
+            >
+              <p className="font-bold text-white">{item.q}</p>
+              <p className="text-sm text-slate-400 leading-relaxed">{item.a}</p>
+            </div>
+          ))}
+        </div>
+      </section>
 
       {/* CTA */}
       <section className="relative rounded-3xl overflow-hidden text-center p-16 space-y-6 animate-pulse-glow border border-violet-500/20">
