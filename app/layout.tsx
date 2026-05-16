@@ -6,6 +6,7 @@ import BackgroundFX from '@/components/BackgroundFX'
 import PWARegister from '@/components/PWARegister'
 import { ToastProvider } from '@/components/Toast'
 import { Analytics } from '@vercel/analytics/next'
+import { LanguageProvider } from '@/context/LanguageContext'
 
 const geist = Geist({
   variable: '--font-geist-sans',
@@ -69,6 +70,7 @@ export default function RootLayout({
         <Analytics />
         <PWARegister />
         <BackgroundFX />
+        <LanguageProvider>
         <ToastProvider>
           <Header />
           <main className="flex-1">
@@ -85,6 +87,7 @@ export default function RootLayout({
             </div>
           </footer>
         </ToastProvider>
+        </LanguageProvider>
       </body>
     </html>
   )

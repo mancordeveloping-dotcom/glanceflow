@@ -141,7 +141,10 @@ export default function Header() {
                     )}
                   </div>
 
-                  <div className="px-5 py-3">
+                  <div className="px-5 py-3 space-y-2">
+                    <Link href="/profile" onClick={() => setOpen(false)} className="block text-sm text-slate-300 font-semibold hover:text-white transition-colors">
+                      Profile →
+                    </Link>
                     <button onClick={handleLogout} className="w-full text-left text-sm text-red-400 font-semibold hover:text-red-300 transition-colors">
                       Sign out
                     </button>
@@ -201,6 +204,7 @@ export default function Header() {
             { href: '/', label: 'Home' },
             { href: '/dashboard', label: 'Dashboard' },
             { href: '/pricing', label: 'Pricing' },
+            { href: '/profile', label: 'Profile' },
           ].map((item) => (
             <Link key={item.href} href={item.href} onClick={() => setMobileOpen(false)}
               className="block rounded-xl px-3 py-3 text-sm font-semibold text-slate-300 hover:bg-white/5 hover:text-white transition-colors">
