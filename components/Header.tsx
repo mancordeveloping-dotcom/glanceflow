@@ -96,7 +96,7 @@ export default function Header() {
               </button>
 
               {open && (
-                <div className="absolute right-0 mt-2 w-72 glass-bright inner-highlight rounded-2xl shadow-2xl shadow-black/50 overflow-hidden z-50 animate-fade-up border border-white/10">
+                <div className="absolute right-0 mt-2 w-72 rounded-2xl shadow-2xl shadow-black/80 overflow-hidden z-50 animate-fade-up border border-white/10" style={{ background: '#111118' }}>
                   <div className="px-5 py-4 border-b border-white/8">
                     <div className="flex items-center gap-3">
                       <div className="h-10 w-10 rounded-full bg-gradient-to-br from-violet-500 to-cyan-500 flex items-center justify-center text-white font-bold shrink-0">
