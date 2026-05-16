@@ -18,8 +18,15 @@ export const viewport: Viewport = {
 }
 
 export const metadata: Metadata = {
-  title: 'GlanceFlow',
-  description: 'Transform screenshots into tasks with AI',
+  title: {
+    default: 'GlanceFlow — Screenshot to Task with AI',
+    template: '%s | GlanceFlow',
+  },
+  description: 'Trasforma qualsiasi screenshot in task con l\'AI. Carica, estrai, completa. Gratis — 3 screenshot al giorno.',
+  keywords: ['task management', 'ai productivity', 'screenshot to task', 'gemini ai', 'todo app', 'productivity app'],
+  authors: [{ name: 'GlanceFlow' }],
+  creator: 'GlanceFlow',
+  metadataBase: new URL(process.env.NEXT_PUBLIC_URL ?? 'https://glanceflow.vercel.app'),
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
@@ -30,13 +37,33 @@ export const metadata: Metadata = {
     icon: '/icon-192.svg',
     apple: '/icon-512.svg',
   },
+  openGraph: {
+    type: 'website',
+    locale: 'it_IT',
+    url: process.env.NEXT_PUBLIC_URL ?? 'https://glanceflow.vercel.app',
+    title: 'GlanceFlow — Screenshot to Task with AI',
+    description: 'Trasforma qualsiasi screenshot in task con l\'AI in 3 secondi. Gratis.',
+    siteName: 'GlanceFlow',
+    images: [{
+      url: '/og-image.png',
+      width: 1200,
+      height: 630,
+      alt: 'GlanceFlow — Screenshot to Task with AI',
+    }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'GlanceFlow — Screenshot to Task with AI',
+    description: 'Trasforma qualsiasi screenshot in task con l\'AI in 3 secondi.',
+    images: ['/og-image.png'],
+  },
 }
 
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${geist.variable} h-full antialiased`}>
+    <html lang="it" className={`${geist.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col text-gray-900">
         <PWARegister />
         <BackgroundFX />

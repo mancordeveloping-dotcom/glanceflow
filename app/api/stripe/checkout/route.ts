@@ -49,7 +49,7 @@ export async function POST(req: NextRequest) {
       },
       quantity: 1,
     }],
-    success_url: `${process.env.NEXT_PUBLIC_URL}/dashboard?upgraded=true`,
+    success_url: `${process.env.NEXT_PUBLIC_URL}/success`,
     cancel_url: `${process.env.NEXT_PUBLIC_URL}`,
   })
 

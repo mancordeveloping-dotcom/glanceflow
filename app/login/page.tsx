@@ -38,6 +38,7 @@ export default function LoginPage() {
     } else {
       const { error: err } = await supabaseBrowser.auth.signUp({ email, password })
       if (err) { setError(err.message); setLoading(false); return }
+      fetch('/api/welcome', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email }) }).catch(() => null)
       setSignupDone(true)
     }
     setLoading(false)
