@@ -9,3 +9,6 @@ console.log('icon-192.png creato!')
 
 await sharp(svg512).resize(512, 512).png().toFile('./public/icon-512.png')
 console.log('icon-512.png creato!')
+
+await sharp(svg512).resize(180, 180).png().toFile('./public/apple-touch-icon.png')
+console.log('apple-touch-icon.png creato!')
