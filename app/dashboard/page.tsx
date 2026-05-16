@@ -79,6 +79,21 @@ export default function DashboardPage() {
     }
   }
 
+  async function handleEdit(task: Task, updates: Partial<Task>) {
+    updateTask(task.id, updates)
+    const res = await fetch(`/api/tasks/${task.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updates),
+    })
+    if (!res.ok) {
+      updateTask(task.id, { title: task.title, date: task.date, time: task.time, location: task.location, type: task.type })
+      toast('Errore modifica task', 'error')
+    } else {
+      toast('Task aggiornato!', 'success')
+    }
+  }
+
   async function handlePortal() {
     setPortalLoading(true)
     try {
@@ -266,7 +281,7 @@ export default function DashboardPage() {
       {!loading && filtered.length > 0 && (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {filtered.map((task) => (
-            <TaskCard key={task.id} task={task} onToggle={handleToggle} onDelete={handleDelete} />
+            <TaskCard key={task.id} task={task} onToggle={handleToggle} onDelete={handleDelete} onEdit={handleEdit} />
           ))}
         </div>
       )}
