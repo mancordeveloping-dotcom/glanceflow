@@ -1,6 +1,14 @@
 export type TaskStatus = 'pending' | 'in_progress' | 'done'
 export type TaskType = 'task' | 'event' | 'reminder'
 
+export interface Project {
+  id: string
+  user_id: string
+  name: string
+  color: string
+  created_at: string
+}
+
 export interface Task {
   id: string
   title: string
@@ -11,6 +19,7 @@ export interface Task {
   time: string | null
   location: string | null
   type: TaskType
+  project_id: string | null
   created_at: string
   updated_at: string
 }
