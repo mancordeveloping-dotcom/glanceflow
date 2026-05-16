@@ -34,8 +34,8 @@ export const metadata: Metadata = {
     title: 'GlanceFlow',
   },
   icons: {
-    icon: '/icon-192.svg',
-    apple: '/icon-512.svg',
+    icon: '/icon-192.png',
+    apple: '/icon-512.png',
   },
   openGraph: {
     type: 'website',
