@@ -1,0 +1,16 @@
+<svg width="192" height="192" viewBox="0 0 192 192" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="192" height="192" rx="48" fill="#06060f"/>
+  <defs>
+    <linearGradient id="g1" x1="0" y1="0" x2="192" y2="192" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#a78bfa"/>
+      <stop offset="100%" stop-color="#06b6d4"/>
+    </linearGradient>
+  </defs>
+  <!-- Hex ring -->
+  <path d="M96 24 L158 60 L158 132 L96 168 L34 132 L34 60 Z" stroke="url(#g1)" stroke-width="5" fill="none" opacity="0.35"/>
+  <!-- Lightning bolt -->
+  <path d="M106 38 L67 101 L96 101 L86 154 L125 91 L96 91 Z" fill="url(#g1)"/>
+  <!-- Glow dot -->
+  <circle cx="144" cy="48" r="10" fill="#06b6d4" opacity="0.8"/>
+  <circle cx="144" cy="48" r="20" fill="#06b6d4" opacity="0.12"/>
+</svg>
