@@ -81,6 +81,7 @@ export default function Header() {
           <nav className="flex items-center gap-5 text-sm font-medium text-slate-400">
             <Link href="/" className="hover:text-white transition-colors">Home</Link>
             <Link href="/dashboard" className="hover:text-white transition-colors">Dashboard</Link>
+            <Link href="/expenses" className="hover:text-white transition-colors">Expenses</Link>
             <Link href="/calendar" className="hover:text-white transition-colors">Calendar</Link>
             <Link href="/projects" className="hover:text-white transition-colors">Projects</Link>
             <Link href="/pricing" className="hover:text-white transition-colors">Pricing</Link>
@@ -218,6 +219,7 @@ export default function Header() {
           {[
             { href: '/', label: 'Home' },
             { href: '/dashboard', label: 'Dashboard' },
+            { href: '/expenses', label: 'Expenses' },
             { href: '/calendar', label: 'Calendar' },
             { href: '/projects', label: 'Projects' },
             { href: '/pricing', label: 'Pricing' },
