@@ -13,7 +13,7 @@ export async function POST(req: NextRequest) {
     const resend = new Resend(process.env.RESEND_API_KEY)
 
     await resend.emails.send({
-      from: 'GlanceFlow <onboarding@resend.dev>',
+      from: process.env.RESEND_FROM_EMAIL ?? 'GlanceFlow <onboarding@resend.dev>',
       to: email,
       subject: 'Benvenuto su GlanceFlow! 🚀',
       html: `

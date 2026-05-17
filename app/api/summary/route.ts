@@ -63,7 +63,7 @@ Keep it concise and actionable. No fluff.`
     const htmlBody = result.response.text().trim()
 
     await resend.emails.send({
-      from: 'GlanceFlow <noreply@glanceflow.app>',
+      from: process.env.RESEND_FROM_EMAIL ?? 'GlanceFlow <noreply@glanceflow.app>',
       to: user.email!,
       subject: `📋 Your GlanceFlow Weekly Summary — ${tasks.length} tasks pending`,
       html: `
