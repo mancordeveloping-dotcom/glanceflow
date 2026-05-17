@@ -71,6 +71,9 @@ export default function DashboardPage() {
   const [historyLimited, setHistoryLimited] = useState(false)
   const [summaryLoading, setSummaryLoading] = useState(false)
   const [summarySent, setSummarySent] = useState(false)
+  const [dragOrder, setDragOrder] = useState<Task[] | null>(null)
+  const [dragId, setDragId] = useState<string | null>(null)
+  const [dragOverId, setDragOverId] = useState<string | null>(null)
   const { toast } = useToast()
   const router = useRouter()
 
@@ -102,6 +105,8 @@ export default function DashboardPage() {
         .finally(() => setLoading(false))
     })
   }, [router, setTasks])
+
+  useEffect(() => { setDragOrder(null) }, [statusFilter, typeFilter, projectFilter, search])
 
   async function handleToggle(task: Task) {
     const nextStatus = task.status === 'done' ? 'pending' : 'done'
@@ -182,6 +187,11 @@ export default function DashboardPage() {
       const pb = b.priority ? PRIORITY_ORDER[b.priority] : 99
       return pa - pb
     })
+
+  const displayTasks = dragOrder ?? filtered
+
+  const todayStr = new Date().toISOString().split('T')[0]
+  const dueTodayTasks = tasks.filter(t => t.date === todayStr && t.status === 'pending')
 
   const statusFilters: { key: StatusFilter; label: string }[] = [
     { key: 'all', label: 'All' },
@@ -321,6 +331,30 @@ export default function DashboardPage() {
         </div>
       )}
 
+      {!loading && dueTodayTasks.length > 0 && (
+        <div className="rounded-2xl border border-violet-500/20 bg-violet-500/5 px-5 py-4 space-y-3">
+          <div className="flex items-center gap-2">
+            <span className="h-2 w-2 rounded-full bg-violet-400 animate-pulse shrink-0" />
+            <p className="text-sm font-bold text-violet-300">
+              {dueTodayTasks.length} task{dueTodayTasks.length > 1 ? 's' : ''} due today
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {dueTodayTasks.slice(0, 5).map(t => (
+              <span key={t.id} className="flex items-center gap-1.5 rounded-xl border border-violet-500/20 bg-violet-500/10 px-3 py-1 text-xs font-semibold text-violet-200">
+                <span className="h-1.5 w-1.5 rounded-full bg-violet-400 shrink-0" />
+                {t.title}
+              </span>
+            ))}
+            {dueTodayTasks.length > 5 && (
+              <span className="rounded-xl border border-white/10 bg-white/5 px-3 py-1 text-xs text-slate-500">
+                +{dueTodayTasks.length - 5} more
+              </span>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Filters */}
       {!loading && tasks.length > 0 && (
         <div className="flex flex-wrap gap-3 items-center">
@@ -417,7 +451,7 @@ export default function DashboardPage() {
         </div>
       )}
 
-      {!loading && filtered.length === 0 && tasks.length > 0 && (
+      {!loading && displayTasks.length === 0 && tasks.length > 0 && (
         <div className="text-center py-16 space-y-2">
           <p className="text-slate-400 font-semibold">Nessun task corrisponde ai filtri.</p>
           <button onClick={() => { setStatusFilter('all'); setTypeFilter('all') }} className="text-sm text-violet-400 hover:text-violet-300">
@@ -426,10 +460,31 @@ export default function DashboardPage() {
         </div>
       )}
 
-      {!loading && filtered.length > 0 && (
+      {!loading && displayTasks.length > 0 && (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {filtered.map((task) => (
-            <TaskCard key={task.id} task={task} projects={projects} onToggle={handleToggle} onDelete={handleDelete} onEdit={handleEdit} />
+          {displayTasks.map((task) => (
+            <div
+              key={task.id}
+              draggable
+              onDragStart={() => { setDragId(task.id); setDragOrder(displayTasks) }}
+              onDragEnd={() => { setDragId(null); setDragOverId(null) }}
+              onDragOver={(e) => { e.preventDefault(); setDragOverId(task.id) }}
+              onDrop={() => {
+                if (!dragId || dragId === task.id) return
+                const items = [...(dragOrder ?? filtered)]
+                const from = items.findIndex(t => t.id === dragId)
+                const to = items.findIndex(t => t.id === task.id)
+                if (from === -1 || to === -1) return
+                const [moved] = items.splice(from, 1)
+                items.splice(to, 0, moved)
+                setDragOrder(items)
+                setDragOverId(null)
+              }}
+              className={`transition-all duration-200 rounded-2xl ${dragId === task.id ? 'opacity-40 scale-95' : ''} ${dragOverId === task.id && dragId !== task.id ? 'ring-2 ring-violet-500/60' : ''}`}
+              style={{ cursor: dragId ? 'grabbing' : 'grab' }}
+            >
+              <TaskCard task={task} projects={projects} onToggle={handleToggle} onDelete={handleDelete} onEdit={handleEdit} />
+            </div>
           ))}
         </div>
       )}

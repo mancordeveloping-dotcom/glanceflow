@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { supabaseBrowser } from '@/lib/supabase-browser'
 import { useRouter } from 'next/navigation'
 import type { User } from '@supabase/supabase-js'
@@ -26,6 +26,21 @@ export default function Header() {
   const toolsRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
   const pathname = usePathname()
+
+  const [isDark, setIsDark] = useState(true)
+
+  useEffect(() => {
+    const mode = localStorage.getItem('gf-mode') ?? 'dark'
+    setIsDark(mode === 'dark')
+    document.documentElement.setAttribute('data-mode', mode)
+  }, [])
+
+  const toggleMode = useCallback(() => {
+    const next = isDark ? 'light' : 'dark'
+    setIsDark(!isDark)
+    document.documentElement.setAttribute('data-mode', next)
+    localStorage.setItem('gf-mode', next)
+  }, [isDark])
 
   useEffect(() => {
     supabaseBrowser.auth.getUser().then(({ data }) => {
@@ -117,6 +132,22 @@ export default function Header() {
 
             <Link href="/pricing" className={`hover:text-white transition-colors ${pathname === '/pricing' ? 'text-white' : ''}`}>Pricing</Link>
           </nav>
+
+          <button
+            onClick={toggleMode}
+            className="rounded-xl border border-white/10 bg-white/5 p-2 text-slate-400 hover:text-white hover:bg-white/10 transition-colors"
+            title={isDark ? 'Light mode' : 'Dark mode'}
+          >
+            {isDark ? (
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-4.773-4.227-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z" />
+              </svg>
+            ) : (
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M21.752 15.002A9.72 9.72 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z" />
+              </svg>
+            )}
+          </button>
 
           {user ? (
             <div className="relative" ref={dropdownRef}>
@@ -312,6 +343,26 @@ export default function Header() {
                   className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition-colors ${pathname === '/profile' ? 'bg-white/8 text-white' : 'text-slate-400 hover:bg-white/5 hover:text-white'}`}>
                   <span>👤</span> Profile
                 </Link>
+                <button
+                  onClick={toggleMode}
+                  className="flex items-center gap-3 w-full rounded-xl px-3 py-2.5 text-sm font-semibold text-slate-400 hover:bg-white/5 hover:text-white transition-colors"
+                >
+                  {isDark ? (
+                    <>
+                      <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-4.773-4.227-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z" />
+                      </svg>
+                      Light mode
+                    </>
+                  ) : (
+                    <>
+                      <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M21.752 15.002A9.72 9.72 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z" />
+                      </svg>
+                      Dark mode
+                    </>
+                  )}
+                </button>
                 <button onClick={handleLogout}
                   className="flex items-center gap-3 w-full rounded-xl px-3 py-2.5 text-sm font-semibold text-red-400 hover:bg-red-500/10 transition-colors">
                   <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>

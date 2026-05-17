@@ -8,6 +8,7 @@ import { ToastProvider } from '@/components/Toast'
 import { Analytics } from '@vercel/analytics/next'
 import { LanguageProvider } from '@/context/LanguageContext'
 import OnboardingModal from '@/components/OnboardingModal'
+import PageTransition from '@/components/PageTransition'
 
 const geist = Geist({
   variable: '--font-geist-sans',
@@ -68,7 +69,7 @@ export default function RootLayout({
   return (
     <html lang="it" className={`${geist.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col text-gray-900">
-        <script dangerouslySetInnerHTML={{ __html: `try{var t=localStorage.getItem('gf-theme');if(t&&t!=='violet')document.documentElement.setAttribute('data-theme',t)}catch(e){}` }} />
+        <script dangerouslySetInnerHTML={{ __html: `try{var t=localStorage.getItem('gf-theme');if(t&&t!=='violet')document.documentElement.setAttribute('data-theme',t);var m=localStorage.getItem('gf-mode')||'dark';document.documentElement.setAttribute('data-mode',m)}catch(e){}` }} />
         <Analytics />
         <PWARegister />
         <BackgroundFX />
@@ -77,7 +78,7 @@ export default function RootLayout({
           <OnboardingModal />
           <Header />
           <main className="flex-1">
-            <div className="mx-auto max-w-5xl px-4 py-10">{children}</div>
+            <div className="mx-auto max-w-5xl px-4 py-10"><PageTransition>{children}</PageTransition></div>
           </main>
           <footer className="border-t border-white/5 mt-20">
             {/* Gradient separator */}
