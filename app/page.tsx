@@ -97,12 +97,13 @@ export default function HomePage() {
       <section className="grid grid-cols-3 gap-4 sm:gap-6">
         {stats.map((s, i) => (
           <ScrollReveal key={s.label} delay={i * 100} direction="scale">
-            <Tilt3D className="glass inner-highlight neon-border rounded-2xl py-10 px-4 text-center space-y-2 cursor-default h-full">
+            <div className={`glass inner-highlight neon-border rounded-2xl py-10 px-4 text-center space-y-2 cursor-default h-full ${i === 0 ? 'float-card-l' : i === 1 ? 'float-card-c' : 'float-card-r'}`}
+              style={{ animationDelay: `${i * 0.5}s` }}>
               <p className="text-4xl sm:text-5xl font-extrabold gradient-text tabular-nums">
                 <CountUp end={s.value} />
               </p>
               <p className="text-xs sm:text-sm font-medium text-slate-400">{s.label}</p>
-            </Tilt3D>
+            </div>
           </ScrollReveal>
         ))}
       </section>
@@ -117,16 +118,16 @@ export default function HomePage() {
         <div className="grid sm:grid-cols-3 gap-6">
           {features.map((f, i) => (
             <ScrollReveal key={f.title} delay={i * 120} direction="up">
-              <Tilt3D className="glass inner-highlight rounded-3xl p-8 space-y-5 border border-white/5 cursor-default h-full">
+              <div className={`glass inner-highlight rounded-3xl p-8 space-y-5 border border-white/5 cursor-default h-full ${i === 0 ? 'float-card-l' : i === 1 ? 'float-card-c' : 'float-card-r'}`}
+                style={{ animationDelay: `${i * 0.6}s` }}>
                 <div className="text-5xl animate-bounce-soft" style={{ animationDelay: `${i * 0.4}s` }}>{f.icon}</div>
                 <div className="space-y-2">
                   <h3 className="font-bold text-white text-lg">{f.title}</h3>
                   <p className="text-sm text-slate-400 leading-relaxed">{f.desc}</p>
                 </div>
-                {/* Bottom glow line */}
                 <div className="h-px w-full rounded-full"
                   style={{ background: `linear-gradient(90deg, transparent, ${i === 0 ? 'rgba(167,139,250,0.6)' : i === 1 ? 'rgba(6,182,212,0.6)' : 'rgba(52,211,153,0.6)'}, transparent)` }} />
-              </Tilt3D>
+              </div>
             </ScrollReveal>
           ))}
         </div>
@@ -147,7 +148,7 @@ export default function HomePage() {
         <div className="grid sm:grid-cols-3 gap-6">
           {testimonials.map((t, i) => (
             <ScrollReveal key={t.name} delay={i * 130} direction="up">
-              <Tilt3D className="glass inner-highlight rounded-3xl p-6 space-y-4 border border-white/5 cursor-default h-full gradient-border">
+              <div className={`glass inner-highlight rounded-3xl p-6 space-y-4 border border-white/5 cursor-default h-full gradient-border ${i === 0 ? 'tilt-left' : i === 1 ? 'tilt-center' : 'tilt-right'}`}>
                 <div className="flex items-center gap-3">
                   <div className="h-11 w-11 rounded-full bg-gradient-to-br from-violet-500 to-cyan-500 flex items-center justify-center text-white font-bold text-sm shrink-0 shadow-lg shadow-violet-500/30">
                     {t.avatar}
@@ -165,7 +166,7 @@ export default function HomePage() {
                   ))}
                 </div>
                 <p className="text-sm text-slate-300 leading-relaxed italic">&ldquo;{t.text}&rdquo;</p>
-              </Tilt3D>
+              </div>
             </ScrollReveal>
           ))}
         </div>
