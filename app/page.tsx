@@ -52,10 +52,6 @@ export default function HomePage() {
 
         {/* Headline */}
         <div className="relative space-y-5 animate-fade-up">
-          <div className="inline-flex items-center gap-2 rounded-full border border-violet-500/30 bg-violet-500/10 px-4 py-1.5 text-xs font-semibold text-violet-300 mb-2">
-            <span className="h-1.5 w-1.5 rounded-full bg-violet-400 animate-pulse" />
-            Powered by Gemini AI
-          </div>
           <h1 className="text-6xl sm:text-8xl font-extrabold tracking-tight leading-[1.0]">
             <span className="text-white">Screenshot</span>
             <br />
