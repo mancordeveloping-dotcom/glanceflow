@@ -67,11 +67,8 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="it" className={`${geist.variable} h-full antialiased`}>
-      <head>
-        {/* Apply saved theme before hydration to avoid flash */}
-        <script dangerouslySetInnerHTML={{ __html: `try{var t=localStorage.getItem('gf-theme');if(t&&t!=='violet')document.documentElement.setAttribute('data-theme',t)}catch(e){}` }} />
-      </head>
       <body className="min-h-full flex flex-col text-gray-900">
+        <script dangerouslySetInnerHTML={{ __html: `try{var t=localStorage.getItem('gf-theme');if(t&&t!=='violet')document.documentElement.setAttribute('data-theme',t)}catch(e){}` }} />
         <Analytics />
         <PWARegister />
         <BackgroundFX />
