@@ -1,10 +1,8 @@
 import UploadZone from '@/components/UploadZone'
 import MockupDemo from '@/components/MockupDemo'
-import Tilt3D from '@/components/Tilt3D'
 import CountUp from '@/components/CountUp'
 import ScrollReveal from '@/components/ScrollReveal'
 import Link from 'next/link'
-import type React from 'react'
 
 const features = [
   { icon: '📸', title: 'Upload any screenshot', desc: 'WhatsApp, email, notes — any image works instantly.' },
