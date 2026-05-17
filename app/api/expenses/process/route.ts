@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { GoogleGenerativeAI } from '@google/generative-ai'
 import { createSupabaseServer } from '@/lib/supabase-server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
+import { rateLimit, getIP, PRESETS } from '@/lib/rate-limit'
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY ?? '')
 
@@ -40,6 +41,9 @@ function isAllowedType(t: string): t is AllowedMediaType {
 }
 
 export async function POST(req: NextRequest) {
+  const limited = rateLimit(`expenses-process:${getIP(req)}`, PRESETS.ai)
+  if (limited) return limited
+
   const supabase = await createSupabaseServer()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })

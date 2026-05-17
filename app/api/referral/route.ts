@@ -1,12 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createSupabaseServer } from '@/lib/supabase-server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
+import { rateLimit, getIP, PRESETS } from '@/lib/rate-limit'
 
 function generateCode(userId: string) {
   return userId.replace(/-/g, '').slice(0, 8).toUpperCase()
 }
 
-export async function GET() {
+export async function GET(req: NextRequest) {
+  const limited = rateLimit(`referral-get:${getIP(req)}`, PRESETS.default)
+  if (limited) return limited
+
   const supabase = await createSupabaseServer()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -40,6 +44,9 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
+  const limited = rateLimit(`referral-post:${getIP(req)}`, PRESETS.strict)
+  if (limited) return limited
+
   const { code } = await req.json() as { code: string }
   if (!code) return NextResponse.json({ error: 'Missing code' }, { status: 400 })
 

@@ -1,12 +1,16 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { GoogleGenerativeAI } from '@google/generative-ai'
 import { createSupabaseServer } from '@/lib/supabase-server'
+import { rateLimit, getIP, PRESETS } from '@/lib/rate-limit'
 import { Resend } from 'resend'
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY ?? '')
 const resend = new Resend(process.env.RESEND_API_KEY)
 
-export async function POST() {
+export async function POST(req: NextRequest) {
+  const limited = rateLimit(`summary:${getIP(req)}`, PRESETS.ai)
+  if (limited) return limited
+
   const supabase = await createSupabaseServer()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })

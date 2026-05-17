@@ -1,10 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createSupabaseServer } from '@/lib/supabase-server'
+import { rateLimit, getIP, PRESETS } from '@/lib/rate-limit'
 import type { ParsedTask } from '@/types'
 
 const FREE_HISTORY_DAYS = 30
 
-export async function GET() {
+export async function GET(req: NextRequest) {
+  const limited = rateLimit(`tasks-get:${getIP(req)}`, PRESETS.default)
+  if (limited) return limited
+
   const supabase = await createSupabaseServer()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -37,6 +41,9 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
+  const limited = rateLimit(`tasks-post:${getIP(req)}`, PRESETS.default)
+  if (limited) return limited
+
   const supabase = await createSupabaseServer()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })

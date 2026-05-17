@@ -1,11 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createSupabaseServer } from '@/lib/supabase-server'
+import { rateLimit, getIP, PRESETS } from '@/lib/rate-limit'
 import type { TaskStatus, TaskPriority, TaskRecurrence } from '@/types'
 
 export async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const limited = rateLimit(`tasks-patch:${getIP(req)}`, PRESETS.default)
+  if (limited) return limited
+
   const { id } = await params
   const supabase = await createSupabaseServer()
   const { data: { user } } = await supabase.auth.getUser()
@@ -69,9 +73,12 @@ export async function PATCH(
 }
 
 export async function DELETE(
-  _req: NextRequest,
+  req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const limited = rateLimit(`tasks-delete:${getIP(req)}`, PRESETS.default)
+  if (limited) return limited
+
   const { id } = await params
   const supabase = await createSupabaseServer()
   const { data: { user } } = await supabase.auth.getUser()

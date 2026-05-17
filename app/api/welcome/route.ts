@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { rateLimit, getIP, PRESETS } from '@/lib/rate-limit'
 
 export async function POST(req: NextRequest) {
+  const limited = rateLimit(`welcome:${getIP(req)}`, PRESETS.strict)
+  if (limited) return limited
+
   const { email } = await req.json() as { email: string }
   if (!email) return NextResponse.json({ error: 'Missing email' }, { status: 400 })
 

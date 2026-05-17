@@ -1,9 +1,13 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { stripe } from '@/lib/stripe'
 import { createSupabaseServer } from '@/lib/supabase-server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
+import { rateLimit, getIP, PRESETS } from '@/lib/rate-limit'
 
-export async function POST() {
+export async function POST(req: NextRequest) {
+  const limited = rateLimit(`stripe-portal:${getIP(req)}`, PRESETS.strict)
+  if (limited) return limited
+
   const supabase = await createSupabaseServer()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })

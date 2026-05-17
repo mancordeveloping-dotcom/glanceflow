@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createSupabaseServer } from '@/lib/supabase-server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import { stripe } from '@/lib/stripe'
+import { rateLimit, getIP, PRESETS } from '@/lib/rate-limit'
 
 const PLANS = {
   monthly: { amount: 699, interval: 'month' as const },
@@ -9,6 +10,9 @@ const PLANS = {
 }
 
 export async function POST(req: NextRequest) {
+  const limited = rateLimit(`stripe-checkout:${getIP(req)}`, PRESETS.strict)
+  if (limited) return limited
+
   const supabase = await createSupabaseServer()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
