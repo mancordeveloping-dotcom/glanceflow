@@ -245,44 +245,91 @@ export default function Header() {
 
       {/* Mobile menu */}
       {mobileOpen && (
-        <div className="md:hidden border-t border-white/5 glass-bright px-4 py-4 space-y-1 animate-fade-up">
-          {user && (
-            <div className="px-3 py-3 mb-3 rounded-xl bg-white/5 border border-white/8">
-              <p className="text-sm font-bold text-white truncate">{user.email}</p>
-              {usage?.isPremium ? (
-                <span className="text-xs text-violet-400 font-semibold">✦ Premium</span>
-              ) : (
-                <span className="text-xs text-slate-400">{usage?.remaining}/{usage?.limit} screenshot rimasti oggi</span>
-              )}
+        <div className="md:hidden border-t border-white/5 animate-fade-up" style={{ background: '#0d0d1a' }}>
+          <div className="px-4 py-4 space-y-4">
+
+            {/* User card */}
+            {user && (
+              <div className="flex items-center gap-3 px-3 py-3 rounded-2xl bg-white/5 border border-white/8">
+                <div className="h-9 w-9 rounded-full bg-gradient-to-br from-violet-500 to-cyan-500 flex items-center justify-center text-white text-xs font-bold shrink-0">
+                  {initials}
+                </div>
+                <div className="min-w-0">
+                  <p className="text-sm font-bold text-white truncate">{user.email}</p>
+                  {usage?.isPremium ? (
+                    <span className="text-xs text-violet-400 font-semibold">✦ Premium</span>
+                  ) : (
+                    <span className="text-xs text-slate-400">{usage?.remaining}/{usage?.limit} left today</span>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Main nav */}
+            <div className="space-y-1">
+              <p className="px-3 text-[10px] font-bold uppercase tracking-widest text-slate-600 mb-1">Navigation</p>
+              {[
+                { href: '/', label: 'Home', icon: '🏠' },
+                { href: '/dashboard', label: 'Dashboard', icon: '📋' },
+                { href: '/pricing', label: 'Pricing', icon: '💎' },
+              ].map(item => (
+                <Link key={item.href} href={item.href} onClick={() => setMobileOpen(false)}
+                  className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition-colors
+                    ${pathname === item.href ? 'bg-white/8 text-white' : 'text-slate-400 hover:bg-white/5 hover:text-white'}`}>
+                  <span>{item.icon}</span>
+                  {item.label}
+                </Link>
+              ))}
             </div>
-          )}
 
-          {[
-            { href: '/', label: 'Home' },
-            { href: '/dashboard', label: 'Dashboard' },
-            { href: '/expenses', label: 'Expenses' },
-            { href: '/calendar', label: 'Calendar' },
-            { href: '/projects', label: 'Projects' },
-            { href: '/stats', label: 'Statistics' },
-            { href: '/pricing', label: 'Pricing' },
-            { href: '/profile', label: 'Profile' },
-          ].map((item) => (
-            <Link key={item.href} href={item.href} onClick={() => setMobileOpen(false)}
-              className="block rounded-xl px-3 py-3 text-sm font-semibold text-slate-300 hover:bg-white/5 hover:text-white transition-colors">
-              {item.label}
-            </Link>
-          ))}
+            {/* Tools group */}
+            <div className="space-y-1">
+              <p className="px-3 text-[10px] font-bold uppercase tracking-widest text-slate-600 mb-1">Tools</p>
+              {[
+                { href: '/expenses', label: 'Expenses', icon: '🧾' },
+                { href: '/calendar', label: 'Calendar', icon: '📅' },
+                { href: '/projects', label: 'Projects', icon: '📁' },
+                { href: '/stats', label: 'Statistics', icon: '📊' },
+              ].map(item => (
+                <Link key={item.href} href={item.href} onClick={() => setMobileOpen(false)}
+                  className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition-colors
+                    ${pathname === item.href ? 'bg-white/8 text-white' : 'text-slate-400 hover:bg-white/5 hover:text-white'}`}>
+                  <span>{item.icon}</span>
+                  {item.label}
+                </Link>
+              ))}
+            </div>
 
-          {user ? (
-            <button onClick={handleLogout} className="w-full text-left rounded-xl px-3 py-3 text-sm font-semibold text-red-400 hover:bg-white/5 transition-colors">
-              Sign out
-            </button>
-          ) : (
-            <Link href="/login" onClick={() => setMobileOpen(false)}
-              className="block rounded-xl bg-gradient-to-r from-violet-600 to-cyan-500 px-3 py-3 text-sm font-bold text-white text-center mt-2">
-              Sign in
-            </Link>
-          )}
+            {/* Account */}
+            {user && (
+              <div className="space-y-1">
+                <p className="px-3 text-[10px] font-bold uppercase tracking-widest text-slate-600 mb-1">Account</p>
+                <Link href="/referral" onClick={() => setMobileOpen(false)}
+                  className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition-colors ${pathname === '/referral' ? 'bg-white/8 text-white' : 'text-slate-400 hover:bg-white/5 hover:text-white'}`}>
+                  <span>🎁</span> Referral
+                </Link>
+                <Link href="/profile" onClick={() => setMobileOpen(false)}
+                  className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition-colors ${pathname === '/profile' ? 'bg-white/8 text-white' : 'text-slate-400 hover:bg-white/5 hover:text-white'}`}>
+                  <span>👤</span> Profile
+                </Link>
+                <button onClick={handleLogout}
+                  className="flex items-center gap-3 w-full rounded-xl px-3 py-2.5 text-sm font-semibold text-red-400 hover:bg-red-500/10 transition-colors">
+                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9" />
+                  </svg>
+                  Sign out
+                </button>
+              </div>
+            )}
+
+            {/* Not logged in */}
+            {!user && (
+              <Link href="/login" onClick={() => setMobileOpen(false)}
+                className="block rounded-2xl bg-gradient-to-r from-violet-600 to-cyan-500 px-4 py-3 text-sm font-bold text-white text-center shimmer-btn">
+                Sign in →
+              </Link>
+            )}
+          </div>
         </div>
       )}
     </header>
