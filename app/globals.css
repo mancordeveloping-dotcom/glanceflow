@@ -390,3 +390,64 @@ body {
 .stagger > *:nth-child(4) { animation-delay: 0.26s; }
 .stagger > *:nth-child(5) { animation-delay: 0.33s; }
 .stagger > *:nth-child(6) { animation-delay: 0.40s; }
+
+/* ── Neon inner glow (pulsing) ── */
+@keyframes neon-inner {
+  0%, 100% {
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,0.08),
+      0 0 0 1px rgba(139,92,246,0.15),
+      0 4px 32px rgba(0,0,0,0.4);
+  }
+  50% {
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,0.08),
+      0 0 0 1px rgba(139,92,246,0.35),
+      0 0 24px rgba(139,92,246,0.2),
+      0 4px 32px rgba(0,0,0,0.4);
+  }
+}
+
+.neon-inner {
+  animation: neon-inner 3.5s ease-in-out infinite;
+}
+
+/* ── Floating badge ── */
+@keyframes badge-float {
+  0%, 100% { transform: translateY(0px) rotate(-2deg); }
+  50%       { transform: translateY(-10px) rotate(2deg); }
+}
+
+.badge-float {
+  animation: badge-float 4s ease-in-out infinite;
+}
+
+/* ── Typing cursor ── */
+@keyframes cursor-blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+
+.cursor-blink {
+  animation: cursor-blink 1s step-end infinite;
+}
+
+/* ── Card hover lift ── */
+.card-lift {
+  transition: transform 0.3s cubic-bezier(0.22,1,0.36,1), box-shadow 0.3s ease;
+}
+
+.card-lift:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 30px rgba(139,92,246,0.15);
+}
+
+/* ── Progress glow ── */
+@keyframes progress-glow {
+  0%, 100% { box-shadow: 0 0 6px rgba(139,92,246,0.4); }
+  50%       { box-shadow: 0 0 16px rgba(139,92,246,0.7), 0 0 30px rgba(6,182,212,0.3); }
+}
+
+.progress-glow {
+  animation: progress-glow 2s ease-in-out infinite;
+}

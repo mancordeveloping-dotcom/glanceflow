@@ -128,7 +128,7 @@ export default function TaskCard({ task, projects = [], onToggle, onDelete, onEd
   }
 
   return (
-    <div className={`glass rounded-2xl border border-white/5 overflow-hidden transition-all ${isDone ? 'opacity-60' : ''}`}>
+    <div className={`glass rounded-2xl border border-white/5 overflow-hidden card-lift ${isDone ? 'opacity-55' : ''}`}>
       {/* Top bar with type */}
       <div className={`px-4 py-2 flex items-center justify-between ${typeColors[task.type]}`}>
         <span className="text-xs font-bold tracking-wide">{typeLabel[task.type]}</span>

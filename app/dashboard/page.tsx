@@ -213,7 +213,7 @@ export default function DashboardPage() {
             { label: 'Pending', value: pendingCount, color: 'text-yellow-400' },
             { label: 'Done', value: doneCount, color: 'text-emerald-400' },
           ].map((s) => (
-            <div key={s.label} className="glass inner-highlight rounded-2xl p-4 text-center space-y-1 border border-white/5">
+            <div key={s.label} className="glass inner-highlight neon-inner rounded-2xl p-4 text-center space-y-1 border border-white/5 card-lift cursor-default">
               <p className={`text-3xl font-extrabold ${s.color}`}>{s.value}</p>
               <p className="text-xs font-medium text-slate-500">{s.label}</p>
             </div>
