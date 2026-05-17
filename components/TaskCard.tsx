@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import type { Task } from '@/types'
+import type { Task, Project } from '@/types'
 
 const typeColors: Record<Task['type'], string> = {
   task: 'text-violet-400 bg-violet-500/10',
@@ -17,12 +17,13 @@ const typeLabel: Record<Task['type'], string> = {
 
 interface TaskCardProps {
   task: Task
+  projects?: Project[]
   onToggle?: (task: Task) => void
   onDelete?: (task: Task) => void
   onEdit?: (task: Task, updates: Partial<Task>) => Promise<void>
 }
 
-export default function TaskCard({ task, onToggle, onDelete, onEdit }: TaskCardProps) {
+export default function TaskCard({ task, projects = [], onToggle, onDelete, onEdit }: TaskCardProps) {
   const isDone = task.status === 'done'
   const [deleting, setDeleting] = useState(false)
   const [editing, setEditing] = useState(false)
@@ -33,6 +34,7 @@ export default function TaskCard({ task, onToggle, onDelete, onEdit }: TaskCardP
   const [time, setTime] = useState(task.time ?? '')
   const [location, setLocation] = useState(task.location ?? '')
   const [type, setType] = useState(task.type)
+  const [projectId, setProjectId] = useState(task.project_id ?? '')
 
   function handleDelete() {
     if (!onDelete) return
@@ -46,6 +48,7 @@ export default function TaskCard({ task, onToggle, onDelete, onEdit }: TaskCardP
     setTime(task.time ?? '')
     setLocation(task.location ?? '')
     setType(task.type)
+    setProjectId(task.project_id ?? '')
     setEditing(true)
   }
 
@@ -58,6 +61,7 @@ export default function TaskCard({ task, onToggle, onDelete, onEdit }: TaskCardP
       time: time || null,
       location: location || null,
       type,
+      project_id: projectId || null,
     })
     setSaving(false)
     setEditing(false)
@@ -98,6 +102,16 @@ export default function TaskCard({ task, onToggle, onDelete, onEdit }: TaskCardP
             <option value="event">Event</option>
             <option value="reminder">Reminder</option>
           </select>
+
+          {projects.length > 0 && (
+            <select value={projectId} onChange={(e) => setProjectId(e.target.value)}
+              className="w-full rounded-xl border border-white/10 bg-[#0d0d1a] px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-violet-500/50">
+              <option value="">No project</option>
+              {projects.map(p => (
+                <option key={p.id} value={p.id}>{p.name}</option>
+              ))}
+            </select>
+          )}
         </div>
         <div className="flex gap-2">
           <button onClick={handleSave} disabled={saving || !title.trim()}
@@ -149,6 +163,17 @@ export default function TaskCard({ task, onToggle, onDelete, onEdit }: TaskCardP
             {task.location && <span className="text-xs text-slate-500">📍 {task.location}</span>}
           </div>
         )}
+
+        {task.project_id && projects.length > 0 && (() => {
+          const proj = projects.find(p => p.id === task.project_id)
+          if (!proj) return null
+          return (
+            <div className="flex items-center gap-1.5">
+              <span className="h-2 w-2 rounded-full shrink-0" style={{ backgroundColor: proj.color }} />
+              <span className="text-xs text-slate-500">{proj.name}</span>
+            </div>
+          )
+        })()}
 
         {onToggle && (
           <button

@@ -7,7 +7,8 @@ import { supabaseBrowser } from '@/lib/supabase-browser'
 import { useTaskStore } from '@/store/taskStore'
 import { useToast } from '@/components/Toast'
 import TaskCard from '@/components/TaskCard'
-import type { Task } from '@/types'
+import NotificationManager from '@/components/NotificationManager'
+import type { Task, Project } from '@/types'
 
 interface UsageData {
   used: number
@@ -28,6 +29,8 @@ export default function DashboardPage() {
   const [portalLoading, setPortalLoading] = useState(false)
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all')
   const [typeFilter, setTypeFilter] = useState<TypeFilter>('all')
+  const [projects, setProjects] = useState<Project[]>([])
+  const [projectFilter, setProjectFilter] = useState<string>('all')
   const { toast } = useToast()
   const router = useRouter()
 
@@ -43,10 +46,12 @@ export default function DashboardPage() {
       Promise.all([
         fetch('/api/tasks').then((r) => r.json()),
         fetch('/api/usage').then((r) => r.json()),
-      ]).then(([tasksData, usageData]: [Task[] | { error: string }, UsageData | { error: string }]) => {
+        fetch('/api/projects').then((r) => r.json()),
+      ]).then(([tasksData, usageData, projectsData]: [Task[] | { error: string }, UsageData | { error: string }, Project[]]) => {
         if (Array.isArray(tasksData)) setTasks(tasksData)
         else setError((tasksData as { error: string }).error)
         if ('used' in usageData) setUsage(usageData as UsageData)
+        if (Array.isArray(projectsData)) setProjects(projectsData)
       }).catch(() => setError('Could not load data'))
         .finally(() => setLoading(false))
     })
@@ -112,6 +117,7 @@ export default function DashboardPage() {
   const filtered = tasks.filter((t) => {
     if (statusFilter !== 'all' && t.status !== statusFilter) return false
     if (typeFilter !== 'all' && t.type !== typeFilter) return false
+    if (projectFilter !== 'all' && t.project_id !== projectFilter) return false
     return true
   })
 
@@ -130,6 +136,7 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-8">
+      <NotificationManager tasks={tasks} />
       {upgraded && (
         <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/10 px-5 py-4 flex items-center gap-3">
           <span className="text-2xl">🎉</span>
@@ -230,6 +237,26 @@ export default function DashboardPage() {
             ))}
           </div>
 
+          {/* Project filter */}
+          {projects.length > 0 && (
+            <>
+              <div className="h-4 w-px bg-white/10" />
+              <div className="flex rounded-xl border border-white/8 bg-white/3 p-1 gap-1">
+                <button onClick={() => setProjectFilter('all')}
+                  className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-all ${projectFilter === 'all' ? 'bg-white/10 text-white border border-white/10' : 'text-slate-500 hover:text-white'}`}>
+                  All projects
+                </button>
+                {projects.map(p => (
+                  <button key={p.id} onClick={() => setProjectFilter(p.id)}
+                    className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-all flex items-center gap-1.5 ${projectFilter === p.id ? 'bg-white/10 text-white border border-white/10' : 'text-slate-500 hover:text-white'}`}>
+                    <span className="h-2 w-2 rounded-full shrink-0" style={{ backgroundColor: p.color }} />
+                    {p.name}
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
+
           {/* Active filter count */}
           {filtered.length !== tasks.length && (
             <span className="text-xs text-slate-500">
@@ -281,7 +308,7 @@ export default function DashboardPage() {
       {!loading && filtered.length > 0 && (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {filtered.map((task) => (
-            <TaskCard key={task.id} task={task} onToggle={handleToggle} onDelete={handleDelete} onEdit={handleEdit} />
+            <TaskCard key={task.id} task={task} projects={projects} onToggle={handleToggle} onDelete={handleDelete} onEdit={handleEdit} />
           ))}
         </div>
       )}

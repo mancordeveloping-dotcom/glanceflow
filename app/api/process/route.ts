@@ -87,13 +87,14 @@ export async function POST(req: NextRequest) {
   today.setHours(0, 0, 0, 0)
 
   const [{ data: profile }, { count: usedToday }] = await Promise.all([
-    supabase.from('user_profiles').select('subscription_status').eq('id', user.id).maybeSingle(),
+    supabase.from('user_profiles').select('subscription_status, bonus_credits').eq('id', user.id).maybeSingle(),
     supabase.from('usage_logs').select('*', { count: 'exact', head: true })
       .eq('user_id', user.id).gte('created_at', today.toISOString()),
   ])
 
   const isPremium = profile?.subscription_status === 'premium'
-  if (!isPremium && (usedToday ?? 0) >= FREE_LIMIT) {
+  const totalLimit = FREE_LIMIT + (profile?.bonus_credits ?? 0)
+  if (!isPremium && (usedToday ?? 0) >= totalLimit) {
     return NextResponse.json({ error: 'LIMIT_REACHED' }, { status: 403 })
   }
 
