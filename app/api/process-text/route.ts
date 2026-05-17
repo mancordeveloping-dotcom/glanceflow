@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { GoogleGenerativeAI } from '@google/generative-ai'
 import { createSupabaseServer } from '@/lib/supabase-server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
+import { rateLimit, getIP, PRESETS } from '@/lib/rate-limit'
 import type { ParsedTask } from '@/types'
 
 const FREE_LIMIT = 3
@@ -79,6 +80,9 @@ export async function POST(req: NextRequest) {
   if (!isPremium) {
     return NextResponse.json({ error: 'PREMIUM_REQUIRED' }, { status: 403 })
   }
+
+  const limited = rateLimit(`process-text:${getIP(req)}`, PRESETS.ai)
+  if (limited) return limited
 
   const body = await req.json() as { input: string }
   if (!body.input?.trim()) {

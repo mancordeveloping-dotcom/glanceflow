@@ -2,27 +2,11 @@ import { NextRequest, NextResponse } from 'next/server'
 import { GoogleGenerativeAI } from '@google/generative-ai'
 import { createSupabaseServer } from '@/lib/supabase-server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
+import { rateLimit, getIP, PRESETS } from '@/lib/rate-limit'
 import type { ParsedTask } from '@/types'
 
 const FREE_LIMIT = 3
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY ?? '')
-
-// Simple in-memory rate limiter: max 5 requests per minute per IP
-const rateLimitMap = new Map<string, { count: number; resetAt: number }>()
-const RATE_LIMIT = 5
-const RATE_WINDOW_MS = 60_000
-
-function checkRateLimit(ip: string): boolean {
-  const now = Date.now()
-  const entry = rateLimitMap.get(ip)
-  if (!entry || now > entry.resetAt) {
-    rateLimitMap.set(ip, { count: 1, resetAt: now + RATE_WINDOW_MS })
-    return true
-  }
-  if (entry.count >= RATE_LIMIT) return false
-  entry.count++
-  return true
-}
 
 function friendlyError(message: string): string {
   if (message.includes('LIMIT_REACHED')) return 'You have reached your daily limit. Upgrade to Premium for unlimited processing.'
@@ -71,11 +55,8 @@ function sanitizeType(t: string): ParsedTask['type'] {
 }
 
 export async function POST(req: NextRequest) {
-  // Rate limit by IP
-  const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown'
-  if (!checkRateLimit(ip)) {
-    return NextResponse.json({ error: 'Too many requests. Please slow down.' }, { status: 429 })
-  }
+  const limited = rateLimit(`process:${getIP(req)}`, PRESETS.ai)
+  if (limited) return limited
 
   // Auth
   const supabase = await createSupabaseServer()
