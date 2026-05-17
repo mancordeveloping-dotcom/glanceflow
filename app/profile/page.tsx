@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { supabaseBrowser } from '@/lib/supabase-browser'
-import { useLang } from '@/context/LanguageContext'
+import { useLang, type Lang } from '@/context/LanguageContext'
 import type { User } from '@supabase/supabase-js'
 
 interface UsageData {
@@ -139,18 +139,24 @@ export default function ProfilePage() {
       {/* Language */}
       <div className="glass inner-highlight rounded-2xl p-6 border border-white/5 space-y-3">
         <p className="text-sm font-semibold text-slate-400">{t('profile.language')}</p>
-        <div className="flex gap-3">
-          {(['en', 'it'] as const).map((l) => (
+        <div className="grid grid-cols-2 gap-2">
+          {([
+            { code: 'en', label: '🇬🇧 English' },
+            { code: 'it', label: '🇮🇹 Italiano' },
+            { code: 'es', label: '🇪🇸 Español' },
+            { code: 'fr', label: '🇫🇷 Français' },
+            { code: 'de', label: '🇩🇪 Deutsch' },
+          ] as { code: Lang; label: string }[]).map((l) => (
             <button
-              key={l}
-              onClick={() => setLang(l)}
-              className={`flex-1 rounded-xl py-2.5 text-sm font-bold transition-all border
-                ${lang === l
+              key={l.code}
+              onClick={() => setLang(l.code)}
+              className={`rounded-xl py-2.5 text-sm font-bold transition-all border
+                ${lang === l.code
                   ? 'bg-gradient-to-r from-violet-600 to-cyan-500 text-white border-transparent shadow-lg shadow-violet-500/20'
                   : 'bg-white/5 text-slate-400 border-white/10 hover:bg-white/10'
                 }`}
             >
-              {l === 'en' ? '🇬🇧 English' : '🇮🇹 Italiano'}
+              {l.label}
             </button>
           ))}
         </div>

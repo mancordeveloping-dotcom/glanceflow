@@ -143,11 +143,24 @@ export default function Header() {
                     )}
                   </div>
 
-                  <div className="px-5 py-3 space-y-2">
-                    <Link href="/profile" onClick={() => setOpen(false)} className="block text-sm text-slate-300 font-semibold hover:text-white transition-colors">
-                      Profile →
+                  <div className="px-5 py-3 space-y-1">
+                    <Link
+                      href="/profile"
+                      onClick={() => setOpen(false)}
+                      className="flex items-center gap-2 w-full rounded-xl px-3 py-2.5 text-sm font-semibold text-slate-200 hover:bg-white/8 transition-colors"
+                    >
+                      <svg className="h-4 w-4 text-violet-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+                      </svg>
+                      Profile
                     </Link>
-                    <button onClick={handleLogout} className="w-full text-left text-sm text-red-400 font-semibold hover:text-red-300 transition-colors">
+                    <button
+                      onClick={handleLogout}
+                      className="flex items-center gap-2 w-full rounded-xl px-3 py-2.5 text-sm font-semibold text-red-400 hover:bg-red-500/10 transition-colors"
+                    >
+                      <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9" />
+                      </svg>
                       Sign out
                     </button>
                   </div>

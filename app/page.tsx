@@ -50,7 +50,7 @@ export default function HomePage() {
 
         {/* Upload zone */}
         <div className="relative w-full max-w-lg mx-auto animate-tilt-in">
-          <div className="absolute -inset-1 rounded-3xl bg-gradient-to-r from-violet-600 to-cyan-500 opacity-20 blur-lg" />
+          <div className="absolute -inset-1 rounded-3xl bg-gradient-to-r from-violet-600 to-cyan-500 opacity-20 blur-lg pointer-events-none" />
           <UploadZone />
         </div>
 
