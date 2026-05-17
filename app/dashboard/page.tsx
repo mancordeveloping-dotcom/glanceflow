@@ -68,6 +68,9 @@ export default function DashboardPage() {
   const [projects, setProjects] = useState<Project[]>([])
   const [projectFilter, setProjectFilter] = useState<string>('all')
   const [search, setSearch] = useState('')
+  const [historyLimited, setHistoryLimited] = useState(false)
+  const [summaryLoading, setSummaryLoading] = useState(false)
+  const [summarySent, setSummarySent] = useState(false)
   const { toast } = useToast()
   const router = useRouter()
 
@@ -81,12 +84,18 @@ export default function DashboardPage() {
     supabaseBrowser.auth.getUser().then(({ data }) => {
       if (!data.user) { router.push('/login'); return }
       Promise.all([
-        fetch('/api/tasks').then((r) => r.json()),
+        fetch('/api/tasks').then((r) => r.json()) as Promise<{ tasks: Task[]; historyLimited: boolean } | Task[]>,
         fetch('/api/usage').then((r) => r.json()),
         fetch('/api/projects').then((r) => r.json()),
-      ]).then(([tasksData, usageData, projectsData]: [Task[] | { error: string }, UsageData | { error: string }, Project[]]) => {
-        if (Array.isArray(tasksData)) setTasks(tasksData)
-        else setError((tasksData as { error: string }).error)
+      ]).then(([tasksData, usageData, projectsData]) => {
+        if (tasksData && 'tasks' in tasksData && Array.isArray(tasksData.tasks)) {
+          setTasks(tasksData.tasks)
+          setHistoryLimited(tasksData.historyLimited ?? false)
+        } else if (Array.isArray(tasksData)) {
+          setTasks(tasksData as Task[])
+        } else if (tasksData && 'error' in tasksData) {
+          setError((tasksData as { error: string }).error)
+        }
         if ('used' in usageData) setUsage(usageData as UsageData)
         if (Array.isArray(projectsData)) setProjects(projectsData)
       }).catch(() => setError('Could not load data'))
@@ -137,6 +146,14 @@ export default function DashboardPage() {
     }
   }
 
+  async function handleSummary() {
+    setSummaryLoading(true)
+    const res = await fetch('/api/summary', { method: 'POST' })
+    setSummaryLoading(false)
+    if (res.ok) setSummarySent(true)
+    else toast('Errore invio summary', 'error')
+  }
+
   async function handlePortal() {
     setPortalLoading(true)
     try {
@@ -183,6 +200,33 @@ export default function DashboardPage() {
     <div className="space-y-8">
       <NotificationManager tasks={tasks} />
       <PomodoroTimer />
+      {/* History limited banner */}
+      {historyLimited && (
+        <div className="rounded-2xl border border-amber-500/20 bg-amber-500/8 px-5 py-3 flex items-center justify-between gap-4">
+          <p className="text-sm text-amber-300">
+            📜 Showing tasks from the <span className="font-bold">last 30 days</span>. Upgrade to Premium for full history.
+          </p>
+          <a href="/pricing" className="shrink-0 text-xs font-bold text-violet-400 hover:text-violet-300 transition-colors">Upgrade →</a>
+        </div>
+      )}
+
+      {/* AI Summary */}
+      {usage?.isPremium && !summarySent && (
+        <div className="flex justify-end">
+          <button onClick={handleSummary} disabled={summaryLoading}
+            className="flex items-center gap-2 rounded-xl border border-violet-500/20 bg-violet-500/10 px-4 py-2 text-xs font-bold text-violet-300 hover:bg-violet-500/20 transition-colors disabled:opacity-50">
+            {summaryLoading ? '⏳ Generating…' : '📬 Send AI Summary to email'}
+          </button>
+        </div>
+      )}
+      {summarySent && (
+        <div className="flex justify-end">
+          <span className="rounded-xl border border-emerald-500/20 bg-emerald-500/10 px-4 py-2 text-xs font-bold text-emerald-400">
+            ✓ Summary sent to your email!
+          </span>
+        </div>
+      )}
+
       {upgraded && (
         <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/10 px-5 py-4 flex items-center gap-3">
           <span className="text-2xl">🎉</span>

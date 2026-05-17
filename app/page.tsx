@@ -1,8 +1,12 @@
+'use client'
+
 import UploadZone from '@/components/UploadZone'
 import MockupDemo from '@/components/MockupDemo'
 import CountUp from '@/components/CountUp'
 import ScrollReveal from '@/components/ScrollReveal'
+import TextInputZone from '@/components/TextInputZone'
 import Link from 'next/link'
+import { useState } from 'react'
 
 const features = [
   { icon: '📸', title: 'Upload any screenshot', desc: 'WhatsApp, email, notes — any image works instantly.' },
@@ -85,6 +89,7 @@ function HeroMockup() {
 }
 
 export default function HomePage() {
+  const [inputTab, setInputTab] = useState<'screenshot' | 'text'>('screenshot')
   return (
     <div className="space-y-36">
 
@@ -109,11 +114,24 @@ export default function HomePage() {
               </p>
             </div>
 
-            {/* Upload zone */}
-            <div className="relative max-w-md mx-auto lg:mx-0">
-              <div className="absolute -inset-2 rounded-3xl pointer-events-none"
-                style={{ background: 'linear-gradient(135deg, rgba(124,58,237,0.35), rgba(6,182,212,0.25))', filter: 'blur(20px)', animation: 'pulse-glow 3s ease-in-out infinite' }} />
-              <UploadZone />
+            {/* Upload zone with tabs */}
+            <div className="relative max-w-md mx-auto lg:mx-0 space-y-3">
+              <div className="flex rounded-xl border border-white/8 bg-white/3 p-1 gap-1 w-fit">
+                <button onClick={() => setInputTab('screenshot')}
+                  className={`rounded-lg px-4 py-1.5 text-xs font-bold transition-all ${inputTab === 'screenshot' ? 'bg-gradient-to-r from-violet-600 to-cyan-500 text-white' : 'text-slate-400 hover:text-white'}`}>
+                  📸 Screenshot
+                </button>
+                <button onClick={() => setInputTab('text')}
+                  className={`rounded-lg px-4 py-1.5 text-xs font-bold transition-all flex items-center gap-1.5 ${inputTab === 'text' ? 'bg-gradient-to-r from-violet-600 to-cyan-500 text-white' : 'text-slate-400 hover:text-white'}`}>
+                  🔗 Link / Text
+                  <span className="rounded-full bg-violet-500/20 border border-violet-500/30 px-1.5 py-0.5 text-[9px] text-violet-300 font-extrabold">PRO</span>
+                </button>
+              </div>
+              <div className="relative">
+                <div className="absolute -inset-2 rounded-3xl pointer-events-none"
+                  style={{ background: 'linear-gradient(135deg, rgba(124,58,237,0.35), rgba(6,182,212,0.25))', filter: 'blur(20px)', animation: 'pulse-glow 3s ease-in-out infinite' }} />
+                {inputTab === 'screenshot' ? <UploadZone /> : <TextInputZone />}
+              </div>
             </div>
 
             {/* Badges */}

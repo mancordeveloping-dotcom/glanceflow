@@ -2,19 +2,38 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createSupabaseServer } from '@/lib/supabase-server'
 import type { ParsedTask } from '@/types'
 
+const FREE_HISTORY_DAYS = 30
+
 export async function GET() {
   const supabase = await createSupabaseServer()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const { data, error } = await supabase
+  const { data: profile } = await supabase
+    .from('user_profiles')
+    .select('subscription_status')
+    .eq('id', user.id)
+    .maybeSingle()
+
+  const isPremium = profile?.subscription_status === 'premium'
+
+  let query = supabase
     .from('tasks')
     .select('*')
     .eq('user_id', user.id)
     .order('created_at', { ascending: false })
 
+  // Free users: only last 30 days
+  if (!isPremium) {
+    const cutoff = new Date()
+    cutoff.setDate(cutoff.getDate() - FREE_HISTORY_DAYS)
+    query = query.gte('created_at', cutoff.toISOString())
+  }
+
+  const { data, error } = await query
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  return NextResponse.json(data)
+
+  return NextResponse.json({ tasks: data, isPremium, historyLimited: !isPremium })
 }
 
 export async function POST(req: NextRequest) {
