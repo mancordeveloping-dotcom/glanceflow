@@ -6,6 +6,7 @@ import { supabaseBrowser } from '@/lib/supabase-browser'
 import { useRouter } from 'next/navigation'
 import type { User } from '@supabase/supabase-js'
 import Logo from '@/components/Logo'
+import { usePathname } from 'next/navigation'
 
 interface UsageData {
   used: number
@@ -18,10 +19,13 @@ export default function Header() {
   const [user, setUser] = useState<User | null>(null)
   const [usage, setUsage] = useState<UsageData | null>(null)
   const [open, setOpen] = useState(false)
+  const [toolsOpen, setToolsOpen] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
   const [portalLoading, setPortalLoading] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
+  const toolsRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
+  const pathname = usePathname()
 
   useEffect(() => {
     supabaseBrowser.auth.getUser().then(({ data }) => {
@@ -38,9 +42,8 @@ export default function Header() {
 
   useEffect(() => {
     function handleClick(e: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
-        setOpen(false)
-      }
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) setOpen(false)
+      if (toolsRef.current && !toolsRef.current.contains(e.target as Node)) setToolsOpen(false)
     }
     document.addEventListener('mousedown', handleClick)
     return () => document.removeEventListener('mousedown', handleClick)
@@ -79,12 +82,39 @@ export default function Header() {
         {/* Desktop nav */}
         <div className="hidden md:flex items-center gap-6">
           <nav className="flex items-center gap-5 text-sm font-medium text-slate-400">
-            <Link href="/" className="hover:text-white transition-colors">Home</Link>
-            <Link href="/dashboard" className="hover:text-white transition-colors">Dashboard</Link>
-            <Link href="/expenses" className="hover:text-white transition-colors">Expenses</Link>
-            <Link href="/calendar" className="hover:text-white transition-colors">Calendar</Link>
-            <Link href="/projects" className="hover:text-white transition-colors">Projects</Link>
-            <Link href="/pricing" className="hover:text-white transition-colors">Pricing</Link>
+            <Link href="/" className={`hover:text-white transition-colors ${pathname === '/' ? 'text-white' : ''}`}>Home</Link>
+            <Link href="/dashboard" className={`hover:text-white transition-colors ${pathname === '/dashboard' ? 'text-white' : ''}`}>Dashboard</Link>
+
+            {/* Tools dropdown */}
+            <div className="relative" ref={toolsRef}>
+              <button
+                onClick={() => setToolsOpen(v => !v)}
+                className={`flex items-center gap-1 hover:text-white transition-colors ${['/expenses','/calendar','/projects'].includes(pathname) ? 'text-white' : ''}`}
+              >
+                Tools
+                <svg className={`h-3.5 w-3.5 transition-transform ${toolsOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                </svg>
+              </button>
+              {toolsOpen && (
+                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-44 rounded-2xl border border-white/10 shadow-xl shadow-black/50 overflow-hidden z-50 animate-fade-up" style={{ background: '#111118' }}>
+                  {[
+                    { href: '/expenses', icon: '🧾', label: 'Expenses' },
+                    { href: '/calendar', icon: '📅', label: 'Calendar' },
+                    { href: '/projects', icon: '📁', label: 'Projects' },
+                  ].map(item => (
+                    <Link key={item.href} href={item.href} onClick={() => setToolsOpen(false)}
+                      className={`flex items-center gap-2.5 px-4 py-3 text-sm font-medium transition-colors hover:bg-white/8
+                        ${pathname === item.href ? 'text-white bg-white/5' : 'text-slate-400'}`}>
+                      <span>{item.icon}</span>
+                      {item.label}
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <Link href="/pricing" className={`hover:text-white transition-colors ${pathname === '/pricing' ? 'text-white' : ''}`}>Pricing</Link>
           </nav>
 
           {user ? (
