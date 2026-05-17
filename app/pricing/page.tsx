@@ -7,25 +7,37 @@ import { supabaseBrowser } from '@/lib/supabase-browser'
 const freeFeatures = [
   { text: '3 screenshots per day', included: true },
   { text: 'AI task extraction', included: true },
-  { text: 'Dashboard, calendar, projects', included: true },
+  { text: 'Dashboard & projects', included: true },
   { text: 'Task priority & recurrence', included: true },
   { text: 'Browser notifications', included: true },
   { text: 'Last 30 days history only', included: false },
   { text: 'Task from link / text', included: false },
   { text: 'AI Smart Summary email', included: false },
-  { text: 'Expense tracker', included: false },
+  { text: 'Calendar view', included: false },
 ]
 
-const premiumFeatures = [
+const monthlyFeatures = [
   { text: 'Unlimited screenshots', included: true },
   { text: 'AI task extraction (priority)', included: true },
-  { text: 'Dashboard, calendar, projects', included: true },
+  { text: 'Dashboard & projects', included: true },
   { text: 'Task priority & recurrence', included: true },
   { text: 'Browser & email notifications', included: true },
   { text: 'Full task history (unlimited)', included: true },
   { text: 'Task from link / text (AI)', included: true },
   { text: 'AI Smart Summary email', included: true },
-  { text: 'Expense tracker + AI receipts', included: true },
+  { text: 'Calendar view', included: false, note: 'Annual only' },
+]
+
+const annualFeatures = [
+  { text: 'Unlimited screenshots', included: true },
+  { text: 'AI task extraction (priority)', included: true },
+  { text: 'Dashboard & projects', included: true },
+  { text: 'Task priority & recurrence', included: true },
+  { text: 'Browser & email notifications', included: true },
+  { text: 'Full task history (unlimited)', included: true },
+  { text: 'Task from link / text (AI)', included: true },
+  { text: 'AI Smart Summary email', included: true },
+  { text: 'Calendar view', included: true, highlight: true },
 ]
 
 export default function PricingPage() {
@@ -111,10 +123,16 @@ export default function PricingPage() {
             <p className="text-sm text-slate-300">For power users</p>
           </div>
           <ul className="relative space-y-2.5">
-            {premiumFeatures.map((f) => (
+            {monthlyFeatures.map((f) => (
               <li key={f.text} className="flex items-center gap-2.5 text-sm">
-                <span className="shrink-0 h-5 w-5 rounded-full flex items-center justify-center text-xs font-bold bg-violet-500/20 text-violet-300 border border-violet-500/30">✓</span>
-                <span className="text-slate-200">{f.text}</span>
+                <span className={`shrink-0 h-5 w-5 rounded-full flex items-center justify-center text-xs font-bold
+                  ${f.included ? 'bg-violet-500/20 text-violet-300 border border-violet-500/30' : 'bg-white/5 text-slate-600 border border-white/5'}`}>
+                  {f.included ? '✓' : '✗'}
+                </span>
+                <span className={f.included ? 'text-slate-200' : 'text-slate-600'}>
+                  {f.text}
+                  {'note' in f && f.note && <span className="ml-1.5 text-xs text-amber-500/70">({f.note})</span>}
+                </span>
               </li>
             ))}
           </ul>
@@ -138,10 +156,14 @@ export default function PricingPage() {
             <p className="text-sm text-emerald-400 font-semibold">Save €33.89 vs monthly</p>
           </div>
           <ul className="space-y-2.5">
-            {premiumFeatures.map((f) => (
+            {annualFeatures.map((f) => (
               <li key={f.text} className="flex items-center gap-2.5 text-sm">
-                <span className="shrink-0 h-5 w-5 rounded-full flex items-center justify-center text-xs font-bold bg-white/5 text-slate-400 border border-white/10">✓</span>
-                <span className="text-slate-400">{f.text}</span>
+                <span className={`shrink-0 h-5 w-5 rounded-full flex items-center justify-center text-xs font-bold
+                  ${'highlight' in f && f.highlight ? 'bg-amber-500/20 text-amber-400 border border-amber-500/40' : 'bg-white/5 text-slate-400 border border-white/10'}`}>✓</span>
+                <span className={`${'highlight' in f && f.highlight ? 'text-amber-400 font-semibold' : 'text-slate-400'}`}>
+                  {f.text}
+                  {'highlight' in f && f.highlight && <span className="ml-1.5 text-[10px] bg-amber-500/20 border border-amber-500/30 text-amber-400 px-1.5 py-0.5 rounded-full font-bold">EXCLUSIVE</span>}
+                </span>
               </li>
             ))}
           </ul>
@@ -157,14 +179,20 @@ export default function PricingPage() {
         <h2 className="text-2xl font-extrabold text-white text-center">What you unlock with Premium</h2>
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {[
-            { icon: '🔗', title: 'Task from link/text', desc: 'Paste any URL or text — AI extracts tasks instantly.' },
-            { icon: '📬', title: 'AI Smart Summary', desc: 'Weekly email with AI-generated task summary and priorities.' },
-            { icon: '📜', title: 'Unlimited history', desc: 'Access all your tasks from day one, no 30-day limit.' },
-            { icon: '♾️', title: 'Unlimited screenshots', desc: 'Process as many screenshots as you need, every day.' },
+            { icon: '🔗', title: 'Task from link/text', desc: 'Paste any URL or text — AI extracts tasks instantly.', annual: false },
+            { icon: '📬', title: 'AI Smart Summary', desc: 'Weekly email with AI-generated task summary and priorities.', annual: false },
+            { icon: '📅', title: 'Calendar view', desc: 'Full monthly calendar with all your tasks. Annual plan exclusive.', annual: true },
+            { icon: '♾️', title: 'Unlimited screenshots', desc: 'Process as many screenshots as you need, every day.', annual: false },
           ].map(f => (
-            <div key={f.title} className="glass rounded-2xl p-5 space-y-2 border border-white/5 text-center card-lift">
+            <div key={f.title} className={`glass rounded-2xl p-5 space-y-2 border text-center card-lift relative
+              ${f.annual ? 'border-amber-500/30 bg-amber-500/5' : 'border-white/5'}`}>
+              {f.annual && (
+                <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 rounded-full bg-amber-500/20 border border-amber-500/40 px-2.5 py-0.5 text-[10px] font-bold text-amber-400 whitespace-nowrap">
+                  Annual only
+                </div>
+              )}
               <div className="text-3xl">{f.icon}</div>
-              <p className="font-bold text-white text-sm">{f.title}</p>
+              <p className={`font-bold text-sm ${f.annual ? 'text-amber-400' : 'text-white'}`}>{f.title}</p>
               <p className="text-xs text-slate-400 leading-relaxed">{f.desc}</p>
             </div>
           ))}

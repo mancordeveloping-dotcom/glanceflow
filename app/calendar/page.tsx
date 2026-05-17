@@ -17,17 +17,28 @@ const typeColors: Record<Task['type'], string> = {
 export default function CalendarPage() {
   const [tasks, setTasks] = useState<Task[]>([])
   const [loading, setLoading] = useState(true)
+  const [isAnnual, setIsAnnual] = useState<boolean | null>(null)
   const [today] = useState(new Date())
   const [current, setCurrent] = useState(new Date())
   const [selected, setSelected] = useState<string | null>(null)
   const router = useRouter()
 
   useEffect(() => {
-    supabaseBrowser.auth.getUser().then(({ data }) => {
+    supabaseBrowser.auth.getUser().then(async ({ data }) => {
       if (!data.user) { router.push('/login'); return }
-      fetch('/api/tasks').then(r => r.json()).then((data: Task[]) => {
-        if (Array.isArray(data)) setTasks(data.filter(t => t.date))
-      }).catch(() => null).finally(() => setLoading(false))
+
+      const usageRes = await fetch('/api/usage').then(r => r.json()) as { isAnnual?: boolean }
+      const annual = usageRes.isAnnual ?? false
+      setIsAnnual(annual)
+
+      if (annual) {
+        fetch('/api/tasks').then(r => r.json()).then((d: unknown) => {
+          const arr = d && typeof d === 'object' && 'tasks' in d ? (d as { tasks: Task[] }).tasks : (Array.isArray(d) ? d as Task[] : [])
+          setTasks(arr.filter(t => t.date))
+        }).catch(() => null)
+      }
+
+      setLoading(false)
     })
   }, [router])
 
@@ -37,7 +48,6 @@ export default function CalendarPage() {
   const firstDay = new Date(year, month, 1)
   const lastDay = new Date(year, month + 1, 0)
 
-  // Monday-based week offset
   const startOffset = (firstDay.getDay() + 6) % 7
   const totalCells = startOffset + lastDay.getDate()
   const cells = Math.ceil(totalCells / 7) * 7
@@ -62,6 +72,42 @@ export default function CalendarPage() {
           <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
           <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
         </svg>
+      </div>
+    )
+  }
+
+  // Gate: annual only
+  if (!isAnnual) {
+    return (
+      <div className="flex flex-col items-center justify-center py-24 space-y-8 animate-fade-up">
+        <div className="glass inner-highlight rounded-3xl border border-amber-500/20 p-10 max-w-md w-full text-center space-y-6 shadow-2xl shadow-amber-500/10">
+          <div className="mx-auto h-20 w-20 rounded-2xl bg-gradient-to-br from-amber-500/20 to-orange-500/20 border border-amber-500/30 flex items-center justify-center text-4xl">
+            📅
+          </div>
+          <div className="space-y-2">
+            <div className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/10 border border-amber-500/30 px-3 py-1 text-xs font-bold text-amber-400 tracking-widest uppercase mb-2">
+              Annual plan only
+            </div>
+            <h2 className="text-2xl font-extrabold text-white">Calendar View</h2>
+            <p className="text-sm text-slate-400 leading-relaxed">
+              See all your tasks on a full calendar. Available exclusively with the Annual plan — save 40% and unlock this feature.
+            </p>
+          </div>
+          <div className="glass rounded-2xl border border-white/5 p-4 space-y-2 text-left">
+            {['Full monthly calendar view', 'See tasks by date at a glance', 'Click any day to view details', 'All task types color-coded'].map(f => (
+              <div key={f} className="flex items-center gap-2 text-sm text-slate-300">
+                <span className="h-4 w-4 rounded-full bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-xs text-amber-400">✓</span>
+                {f}
+              </div>
+            ))}
+          </div>
+          <button
+            onClick={() => router.push('/pricing')}
+            className="w-full shimmer-btn btn-3d rounded-xl py-3.5 text-sm font-extrabold bg-gradient-to-r from-amber-500 to-orange-500 text-white">
+            Upgrade to Annual — €49.99/yr
+          </button>
+          <p className="text-xs text-slate-600">Already annual? Contact support.</p>
+        </div>
       </div>
     )
   }

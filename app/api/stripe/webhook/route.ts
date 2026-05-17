@@ -27,9 +27,22 @@ export async function POST(req: NextRequest) {
   if (ACTIVE_EVENTS.includes(event.type)) {
     const status = obj.status as string | undefined
     const isPremium = !status || ['active', 'trialing'].includes(status)
+
+    const updates: Record<string, string> = {
+      subscription_status: isPremium ? 'premium' : 'free',
+    }
+
+    // For subscription events, extract the billing interval
+    if (event.type !== 'checkout.session.completed') {
+      const items = obj.items as { data: Array<{ plan?: { interval?: string } }> } | undefined
+      const interval = items?.data?.[0]?.plan?.interval
+      if (interval === 'year') updates.subscription_interval = 'yearly'
+      else if (interval === 'month') updates.subscription_interval = 'monthly'
+    }
+
     await supabaseAdmin
       .from('user_profiles')
-      .update({ subscription_status: isPremium ? 'premium' : 'free' })
+      .update(updates)
       .eq('stripe_customer_id', customerId)
   }
 

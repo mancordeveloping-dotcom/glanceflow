@@ -23,16 +23,18 @@ export async function GET(req: NextRequest) {
       .gte('created_at', today.toISOString()),
     supabase
       .from('user_profiles')
-      .select('subscription_status')
+      .select('subscription_status, subscription_interval')
       .eq('id', user.id)
       .maybeSingle(),
   ])
 
   const isPremium = profile?.subscription_status === 'premium'
+  const isAnnual = isPremium && profile?.subscription_interval === 'yearly'
   return NextResponse.json({
     used: count ?? 0,
     limit: FREE_LIMIT,
     isPremium,
+    isAnnual,
     remaining: isPremium ? null : Math.max(0, FREE_LIMIT - (count ?? 0)),
   })
 }
