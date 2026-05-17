@@ -18,6 +18,7 @@ export async function PATCH(
   const body = await req.json() as {
     status?: TaskStatus
     title?: string
+    description?: string | null
     date?: string | null
     time?: string | null
     location?: string | null
@@ -28,15 +29,16 @@ export async function PATCH(
   }
 
   const updates: Record<string, unknown> = { updated_at: new Date().toISOString() }
-  if (body.status    !== undefined) updates.status     = body.status
-  if (body.title     !== undefined) updates.title      = body.title
-  if (body.date      !== undefined) updates.date       = body.date
-  if (body.time      !== undefined) updates.time       = body.time
-  if (body.location  !== undefined) updates.location   = body.location
-  if (body.type      !== undefined) updates.type       = body.type
-  if (body.project_id !== undefined) updates.project_id = body.project_id
-  if (body.priority  !== undefined) updates.priority   = body.priority
-  if (body.recurrence !== undefined) updates.recurrence = body.recurrence
+  if (body.status      !== undefined) updates.status      = body.status
+  if (body.title       !== undefined) updates.title       = body.title
+  if (body.description !== undefined) updates.description = body.description
+  if (body.date        !== undefined) updates.date        = body.date
+  if (body.time        !== undefined) updates.time        = body.time
+  if (body.location    !== undefined) updates.location    = body.location
+  if (body.type        !== undefined) updates.type        = body.type
+  if (body.project_id  !== undefined) updates.project_id  = body.project_id
+  if (body.priority    !== undefined) updates.priority    = body.priority
+  if (body.recurrence  !== undefined) updates.recurrence  = body.recurrence
 
   const { data, error } = await supabase
     .from('tasks')

@@ -102,7 +102,7 @@ export default function RootLayout({
                 <div className="space-y-3">
                   <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Product</p>
                   <div className="space-y-2">
-                    {[['/', 'Home'], ['/dashboard', 'Dashboard'], ['/pricing', 'Pricing'], ['/stats', 'Statistics']].map(([href, label]) => (
+                    {[['/', 'Home'], ['/dashboard', 'Dashboard'], ['/come-funziona', 'Come funziona'], ['/pricing', 'Pricing']].map(([href, label]) => (
                       <a key={href} href={href} className="block text-sm text-slate-500 hover:text-white transition-colors">{label}</a>
                     ))}
                   </div>

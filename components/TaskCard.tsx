@@ -42,14 +42,15 @@ export default function TaskCard({ task, projects = [], onToggle, onDelete, onEd
   const [editing, setEditing]     = useState(false)
   const [saving, setSaving]       = useState(false)
 
-  const [title,      setTitle]      = useState(task.title)
-  const [date,       setDate]       = useState(task.date ?? '')
-  const [time,       setTime]       = useState(task.time ?? '')
-  const [location,   setLocation]   = useState(task.location ?? '')
-  const [type,       setType]       = useState(task.type)
-  const [projectId,  setProjectId]  = useState(task.project_id ?? '')
-  const [priority,   setPriority]   = useState<TaskPriority | ''>(task.priority ?? '')
-  const [recurrence, setRecurrence] = useState<TaskRecurrence | ''>(task.recurrence ?? '')
+  const [title,       setTitle]       = useState(task.title)
+  const [description, setDescription] = useState(task.description ?? '')
+  const [date,        setDate]        = useState(task.date ?? '')
+  const [time,        setTime]        = useState(task.time ?? '')
+  const [location,    setLocation]    = useState(task.location ?? '')
+  const [type,        setType]        = useState(task.type)
+  const [projectId,   setProjectId]   = useState(task.project_id ?? '')
+  const [priority,    setPriority]    = useState<TaskPriority | ''>(task.priority ?? '')
+  const [recurrence,  setRecurrence]  = useState<TaskRecurrence | ''>(task.recurrence ?? '')
 
   function handleDelete() {
     if (!onDelete) return
@@ -59,6 +60,7 @@ export default function TaskCard({ task, projects = [], onToggle, onDelete, onEd
 
   function handleEditOpen() {
     setTitle(task.title)
+    setDescription(task.description ?? '')
     setDate(task.date ?? '')
     setTime(task.time ?? '')
     setLocation(task.location ?? '')
@@ -73,14 +75,15 @@ export default function TaskCard({ task, projects = [], onToggle, onDelete, onEd
     if (!onEdit || !title.trim()) return
     setSaving(true)
     await onEdit(task, {
-      title:      title.trim(),
-      date:       date || null,
-      time:       time || null,
-      location:   location || null,
+      title:       title.trim(),
+      description: description.trim() || null,
+      date:        date || null,
+      time:        time || null,
+      location:    location || null,
       type,
-      project_id: projectId || null,
-      priority:   (priority as TaskPriority) || null,
-      recurrence: (recurrence as TaskRecurrence) || null,
+      project_id:  projectId || null,
+      priority:    (priority as TaskPriority) || null,
+      recurrence:  (recurrence as TaskRecurrence) || null,
     })
     setSaving(false)
     setEditing(false)
@@ -95,6 +98,13 @@ export default function TaskCard({ task, projects = [], onToggle, onDelete, onEd
           <input value={title} onChange={e => setTitle(e.target.value)}
             className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-violet-500/50"
             placeholder="Task title" />
+
+          <textarea
+            value={description}
+            onChange={e => setDescription(e.target.value)}
+            rows={2}
+            className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-violet-500/50 resize-none"
+            placeholder="Note (opzionale)" />
 
           <div className="grid grid-cols-2 gap-3">
             <div>
@@ -198,6 +208,12 @@ export default function TaskCard({ task, projects = [], onToggle, onDelete, onEd
         <p className={`font-semibold text-sm leading-snug ${isDone ? 'line-through text-slate-500' : 'text-white'}`}>
           {task.title}
         </p>
+
+        {task.description && (
+          <p className="text-xs text-slate-500 leading-relaxed line-clamp-2">
+            {task.description}
+          </p>
+        )}
 
         {(task.date || task.time || task.location) && (
           <div className="flex flex-wrap gap-x-3 gap-y-1">
