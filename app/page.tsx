@@ -1,6 +1,9 @@
 import UploadZone from '@/components/UploadZone'
 import MockupDemo from '@/components/MockupDemo'
+import Tilt3D from '@/components/Tilt3D'
+import CountUp from '@/components/CountUp'
 import Link from 'next/link'
+import type React from 'react'
 
 const features = [
   { icon: '📸', title: 'Upload any screenshot', desc: 'WhatsApp, email, notes — any image works instantly.' },
@@ -40,7 +43,7 @@ export default function HomePage() {
           <h1 className="text-6xl sm:text-8xl font-extrabold tracking-tight leading-[1.0]">
             <span className="text-white">Screenshot</span>
             <br />
-            <span className="gradient-text">to Task.</span>
+            <span className="text-shimmer">to Task.</span>
           </h1>
 
           <p className="text-lg text-slate-400 max-w-lg mx-auto leading-relaxed">
@@ -67,14 +70,16 @@ export default function HomePage() {
       {/* Stats */}
       <section className="grid grid-cols-3 gap-4">
         {stats.map((s, i) => (
-          <div
+          <Tilt3D
             key={s.label}
-            className="card-3d glass inner-highlight neon-border rounded-2xl py-8 px-4 text-center space-y-1 animate-fade-up"
-            style={{ animationDelay: `${i * 0.1}s`, opacity: 0 }}
+            className="glass inner-highlight neon-border rounded-2xl py-8 px-4 text-center space-y-1 animate-fade-up"
+            style={{ animationDelay: `${i * 0.1}s`, opacity: 0 } as React.CSSProperties}
           >
-            <p className="text-4xl font-extrabold gradient-text">{s.value}</p>
+            <p className="text-4xl font-extrabold gradient-text">
+              <CountUp end={s.value} />
+            </p>
             <p className="text-sm font-medium text-slate-400">{s.label}</p>
-          </div>
+          </Tilt3D>
         ))}
       </section>
 
@@ -86,15 +91,15 @@ export default function HomePage() {
         </div>
         <div className="grid sm:grid-cols-3 gap-6">
           {features.map((f, i) => (
-            <div
+            <Tilt3D
               key={i}
-              className="card-3d glass inner-highlight rounded-3xl p-8 space-y-4 border border-white/5 animate-fade-up"
-              style={{ animationDelay: `${i * 0.12}s`, opacity: 0 }}
+              className="glass inner-highlight rounded-3xl p-8 space-y-4 border border-white/5 animate-fade-up glow-hover"
+              style={{ animationDelay: `${i * 0.12}s`, opacity: 0 } as React.CSSProperties}
             >
-              <div className="text-5xl">{f.icon}</div>
+              <div className="text-5xl animate-bounce-soft" style={{ animationDelay: `${i * 0.3}s` }}>{f.icon}</div>
               <h3 className="font-bold text-white text-lg">{f.title}</h3>
               <p className="text-sm text-slate-400 leading-relaxed">{f.desc}</p>
-            </div>
+            </Tilt3D>
           ))}
         </div>
       </section>
@@ -110,10 +115,10 @@ export default function HomePage() {
         </div>
         <div className="grid sm:grid-cols-3 gap-6">
           {testimonials.map((t, i) => (
-            <div
+            <Tilt3D
               key={t.name}
-              className="card-3d glass inner-highlight rounded-3xl p-6 space-y-4 border border-white/5 animate-fade-up"
-              style={{ animationDelay: `${i * 0.12}s`, opacity: 0 }}
+              className="glass inner-highlight rounded-3xl p-6 space-y-4 border border-white/5 animate-fade-up gradient-border glow-hover"
+              style={{ animationDelay: `${i * 0.12}s`, opacity: 0 } as React.CSSProperties}
             >
               <div className="flex items-center gap-3">
                 <div className="h-10 w-10 rounded-full bg-gradient-to-br from-violet-500 to-cyan-500 flex items-center justify-center text-white font-bold text-sm shrink-0">
@@ -132,7 +137,7 @@ export default function HomePage() {
                 ))}
               </div>
               <p className="text-sm text-slate-300 leading-relaxed italic">&ldquo;{t.text}&rdquo;</p>
-            </div>
+            </Tilt3D>
           ))}
         </div>
       </section>
