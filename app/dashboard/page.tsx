@@ -7,8 +7,44 @@ import { supabaseBrowser } from '@/lib/supabase-browser'
 import { useTaskStore } from '@/store/taskStore'
 import { useToast } from '@/components/Toast'
 import TaskCard from '@/components/TaskCard'
+import TaskCardSkeleton from '@/components/TaskCardSkeleton'
+import PomodoroTimer from '@/components/PomodoroTimer'
 import NotificationManager from '@/components/NotificationManager'
 import type { Task, Project } from '@/types'
+
+const PRIORITY_ORDER = { urgent: 0, high: 1, medium: 2, low: 3 }
+
+function triggerConfetti() {
+  const colors = ['#7c3aed', '#06b6d4', '#f472b6', '#fbbf24', '#34d399']
+  const container = document.createElement('div')
+  container.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:9999;overflow:hidden'
+  document.body.appendChild(container)
+  for (let i = 0; i < 55; i++) {
+    const el = document.createElement('div')
+    const color = colors[Math.floor(Math.random() * colors.length)]
+    const x = 20 + Math.random() * 60
+    const size = Math.random() * 9 + 4
+    const delay = Math.random() * 0.6
+    const dur = Math.random() * 2 + 1.8
+    el.style.cssText = `position:absolute;left:${x}%;top:-12px;width:${size}px;height:${size}px;background:${color};border-radius:${Math.random()>0.5?'50%':'3px'};animation:confetti-fall ${dur}s ${delay}s ease-in forwards;`
+    container.appendChild(el)
+  }
+  setTimeout(() => container.remove(), 4000)
+}
+
+function exportCSV(tasks: Task[]) {
+  const header = 'Title,Status,Type,Priority,Date,Time,Location,Recurrence,Created'
+  const rows = tasks.map(t =>
+    [t.title, t.status, t.type, t.priority ?? '', t.date ?? '', t.time ?? '', t.location ?? '', t.recurrence ?? '', t.created_at.split('T')[0]]
+      .map(v => `"${String(v).replace(/"/g, '""')}"`)
+      .join(',')
+  )
+  const csv = [header, ...rows].join('\n')
+  const a = document.createElement('a')
+  a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }))
+  a.download = `glanceflow-tasks-${new Date().toISOString().split('T')[0]}.csv`
+  a.click()
+}
 
 interface UsageData {
   used: number
@@ -60,6 +96,7 @@ export default function DashboardPage() {
 
   async function handleToggle(task: Task) {
     const nextStatus = task.status === 'done' ? 'pending' : 'done'
+    if (nextStatus === 'done') triggerConfetti()
     updateTask(task.id, { status: nextStatus })
     const res = await fetch(`/api/tasks/${task.id}`, {
       method: 'PATCH',
@@ -115,13 +152,19 @@ export default function DashboardPage() {
   const pendingCount = tasks.filter((t) => t.status === 'pending').length
   const doneCount = tasks.filter((t) => t.status === 'done').length
 
-  const filtered = tasks.filter((t) => {
-    if (statusFilter !== 'all' && t.status !== statusFilter) return false
-    if (typeFilter !== 'all' && t.type !== typeFilter) return false
-    if (projectFilter !== 'all' && t.project_id !== projectFilter) return false
-    if (search.trim() && !t.title.toLowerCase().includes(search.toLowerCase())) return false
-    return true
-  })
+  const filtered = tasks
+    .filter((t) => {
+      if (statusFilter !== 'all' && t.status !== statusFilter) return false
+      if (typeFilter !== 'all' && t.type !== typeFilter) return false
+      if (projectFilter !== 'all' && t.project_id !== projectFilter) return false
+      if (search.trim() && !t.title.toLowerCase().includes(search.toLowerCase())) return false
+      return true
+    })
+    .sort((a, b) => {
+      const pa = a.priority ? PRIORITY_ORDER[a.priority] : 99
+      const pb = b.priority ? PRIORITY_ORDER[b.priority] : 99
+      return pa - pb
+    })
 
   const statusFilters: { key: StatusFilter; label: string }[] = [
     { key: 'all', label: 'All' },
@@ -139,6 +182,7 @@ export default function DashboardPage() {
   return (
     <div className="space-y-8">
       <NotificationManager tasks={tasks} />
+      <PomodoroTimer />
       {upgraded && (
         <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/10 px-5 py-4 flex items-center gap-3">
           <span className="text-2xl">🎉</span>
@@ -160,8 +204,19 @@ export default function DashboardPage() {
           </p>
         </div>
 
-        {/* Search */}
+        {/* Search + Export */}
         {!loading && tasks.length > 0 && (
+          <div className="flex items-center gap-2">
+          <button
+            onClick={() => exportCSV(tasks)}
+            className="flex items-center gap-1.5 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs font-semibold text-slate-300 hover:bg-white/10 transition-colors"
+            title="Export as CSV"
+          >
+            <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+            </svg>
+            Export CSV
+          </button>
           <div className="relative">
             <svg className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
@@ -179,6 +234,7 @@ export default function DashboardPage() {
                 </svg>
               </button>
             )}
+          </div>
           </div>
         )}
 
@@ -295,11 +351,8 @@ export default function DashboardPage() {
       )}
 
       {loading && (
-        <div className="flex items-center justify-center py-24">
-          <svg className="h-8 w-8 animate-spin text-violet-500" fill="none" viewBox="0 0 24 24">
-            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-          </svg>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {Array.from({ length: 6 }).map((_, i) => <TaskCardSkeleton key={i} />)}
         </div>
       )}
 

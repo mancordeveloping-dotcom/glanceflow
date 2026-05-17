@@ -500,3 +500,53 @@ body {
 .progress-glow {
   animation: progress-glow 2s ease-in-out infinite;
 }
+
+/* ── Skeleton shimmer ── */
+@keyframes skeleton-wave {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.skeleton {
+  background: linear-gradient(90deg,
+    rgba(255,255,255,0.04) 25%,
+    rgba(255,255,255,0.10) 50%,
+    rgba(255,255,255,0.04) 75%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-wave 1.6s ease-in-out infinite;
+}
+
+/* ── Confetti fall ── */
+@keyframes confetti-fall {
+  0%   { transform: translateY(-10px) rotate(0deg);   opacity: 1; }
+  100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+}
+
+/* ── Theme CSS vars ── */
+:root {
+  --accent:   124 58 237;
+  --accent-2: 6 182 212;
+}
+[data-theme="blue"]   { --accent: 37 99 235;  --accent-2: 56 189 248;  }
+[data-theme="green"]  { --accent: 5 150 105;  --accent-2: 52 211 153;  }
+[data-theme="pink"]   { --accent: 219 39 119; --accent-2: 244 114 182; }
+[data-theme="orange"] { --accent: 234 88 12;  --accent-2: 245 158 11;  }
+[data-theme="red"]    { --accent: 220 38 38;  --accent-2: 239 68 68;   }
+
+/* Gradient text respects theme */
+.gradient-text {
+  background: linear-gradient(135deg, rgb(var(--accent) / 0.9) 0%, rgb(var(--accent-2)) 100%) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+}
+
+/* Key buttons respect theme */
+.theme-btn {
+  background: linear-gradient(135deg, rgb(var(--accent)), rgb(var(--accent-2)));
+  box-shadow: 0 4px 0 rgb(var(--accent) / 0.7), 0 8px 24px rgb(var(--accent) / 0.3);
+  transition: transform 0.1s ease, box-shadow 0.1s ease, opacity 0.2s;
+}
+.theme-btn:hover  { transform: translateY(-2px); opacity: 0.95; }
+.theme-btn:active { transform: translateY(2px); }

@@ -9,6 +9,9 @@ export interface Project {
   created_at: string
 }
 
+export type TaskPriority = 'urgent' | 'high' | 'medium' | 'low'
+export type TaskRecurrence = 'daily' | 'weekly' | 'monthly'
+
 export interface Task {
   id: string
   title: string
@@ -20,6 +23,8 @@ export interface Task {
   location: string | null
   type: TaskType
   project_id: string | null
+  priority: TaskPriority | null
+  recurrence: TaskRecurrence | null
   created_at: string
   updated_at: string
 }

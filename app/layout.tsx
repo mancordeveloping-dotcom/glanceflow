@@ -7,6 +7,7 @@ import PWARegister from '@/components/PWARegister'
 import { ToastProvider } from '@/components/Toast'
 import { Analytics } from '@vercel/analytics/next'
 import { LanguageProvider } from '@/context/LanguageContext'
+import OnboardingModal from '@/components/OnboardingModal'
 
 const geist = Geist({
   variable: '--font-geist-sans',
@@ -66,12 +67,17 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="it" className={`${geist.variable} h-full antialiased`}>
+      <head>
+        {/* Apply saved theme before hydration to avoid flash */}
+        <script dangerouslySetInnerHTML={{ __html: `try{var t=localStorage.getItem('gf-theme');if(t&&t!=='violet')document.documentElement.setAttribute('data-theme',t)}catch(e){}` }} />
+      </head>
       <body className="min-h-full flex flex-col text-gray-900">
         <Analytics />
         <PWARegister />
         <BackgroundFX />
         <LanguageProvider>
         <ToastProvider>
+          <OnboardingModal />
           <Header />
           <main className="flex-1">
             <div className="mx-auto max-w-5xl px-4 py-10">{children}</div>

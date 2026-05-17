@@ -7,6 +7,17 @@ import { supabaseBrowser } from '@/lib/supabase-browser'
 import { useLang, type Lang } from '@/context/LanguageContext'
 import type { User } from '@supabase/supabase-js'
 
+const THEMES = [
+  { id: 'violet', label: 'Violet', from: '#7c3aed', to: '#06b6d4' },
+  { id: 'blue',   label: 'Blue',   from: '#2563eb', to: '#38bdf8' },
+  { id: 'green',  label: 'Green',  from: '#059669', to: '#34d399' },
+  { id: 'pink',   label: 'Pink',   from: '#db2777', to: '#f472b6' },
+  { id: 'orange', label: 'Orange', from: '#ea580c', to: '#f59e0b' },
+  { id: 'red',    label: 'Red',    from: '#dc2626', to: '#ef4444' },
+] as const
+
+type ThemeId = (typeof THEMES)[number]['id']
+
 interface UsageData {
   used: number
   limit: number
@@ -21,8 +32,24 @@ export default function ProfilePage() {
   const [resetSent, setResetSent] = useState(false)
   const [resetLoading, setResetLoading] = useState(false)
   const [portalLoading, setPortalLoading] = useState(false)
+  const [theme, setTheme] = useState<ThemeId>('violet')
   const { lang, setLang, t } = useLang()
   const router = useRouter()
+
+  useEffect(() => {
+    const saved = (localStorage.getItem('gf-theme') ?? 'violet') as ThemeId
+    setTheme(saved)
+  }, [])
+
+  function applyTheme(id: ThemeId) {
+    setTheme(id)
+    localStorage.setItem('gf-theme', id)
+    if (id === 'violet') {
+      document.documentElement.removeAttribute('data-theme')
+    } else {
+      document.documentElement.setAttribute('data-theme', id)
+    }
+  }
 
   useEffect(() => {
     supabaseBrowser.auth.getUser().then(({ data }) => {
@@ -157,6 +184,24 @@ export default function ProfilePage() {
                 }`}
             >
               {l.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Accent color */}
+      <div className="glass inner-highlight rounded-2xl p-6 border border-white/5 space-y-3">
+        <p className="text-sm font-semibold text-slate-400">Accent color</p>
+        <div className="grid grid-cols-3 gap-2">
+          {THEMES.map(th => (
+            <button key={th.id} onClick={() => applyTheme(th.id)}
+              className={`relative rounded-xl py-2.5 text-xs font-bold transition-all border overflow-hidden ${theme === th.id ? 'border-white/30 scale-105' : 'border-white/5 hover:border-white/15'}`}>
+              <div className="absolute inset-0 opacity-20" style={{ background: `linear-gradient(135deg, ${th.from}, ${th.to})` }} />
+              <span className="relative flex items-center justify-center gap-1.5">
+                <span className="h-3 w-3 rounded-full" style={{ background: `linear-gradient(135deg, ${th.from}, ${th.to})` }} />
+                <span className="text-white">{th.label}</span>
+              </span>
+              {theme === th.id && <span className="absolute top-1 right-1.5 text-[10px]">✓</span>}
             </button>
           ))}
         </div>
