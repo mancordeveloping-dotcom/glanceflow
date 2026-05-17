@@ -30,60 +30,119 @@ const faqs = [
   { q: 'What languages does it support?', a: 'Any language. Gemini AI understands Italian, English, Spanish, French, and many more.' },
 ]
 
+function HeroMockup() {
+  return (
+    <div className="relative mx-auto w-full max-w-2xl mt-8" style={{ perspective: '1200px' }}>
+      <div className="float-card-c rounded-2xl overflow-hidden border border-white/10 shadow-2xl shadow-violet-900/40">
+        {/* Browser bar */}
+        <div className="flex items-center gap-2 px-4 py-3 bg-white/5 border-b border-white/8">
+          <span className="h-3 w-3 rounded-full bg-red-500/70" />
+          <span className="h-3 w-3 rounded-full bg-yellow-500/70" />
+          <span className="h-3 w-3 rounded-full bg-emerald-500/70" />
+          <div className="flex-1 mx-4 rounded-md bg-white/5 border border-white/8 px-3 py-1 text-xs text-slate-500 text-center">
+            glanceflow.app/dashboard
+          </div>
+        </div>
+        {/* Fake dashboard UI */}
+        <div className="bg-[#06060f] p-5 space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="space-y-1">
+              <div className="h-5 w-28 rounded skeleton" />
+              <div className="h-3 w-44 rounded skeleton" />
+            </div>
+            <div className="h-8 w-20 rounded-xl skeleton" />
+          </div>
+          <div className="grid grid-cols-3 gap-3">
+            {[['12', 'Total'], ['5', 'Pending'], ['7', 'Done']].map(([v, l]) => (
+              <div key={l} className="glass rounded-xl p-3 text-center border border-white/5">
+                <p className="text-xl font-extrabold gradient-text">{v}</p>
+                <p className="text-[10px] text-slate-500">{l}</p>
+              </div>
+            ))}
+          </div>
+          <div className="space-y-2">
+            {[
+              { type: 'task', label: '◆ Task', color: 'text-violet-400 bg-violet-500/10', title: 'Review Q1 report slides', tag: '🔴 Urgent' },
+              { type: 'event', label: '◆ Event', color: 'text-cyan-400 bg-cyan-500/10', title: 'Team standup at 10:00', tag: '📅 Today' },
+              { type: 'reminder', label: '◆ Reminder', color: 'text-pink-400 bg-pink-500/10', title: 'Send invoice to client', tag: '🔁 Weekly' },
+            ].map((t) => (
+              <div key={t.title} className="glass rounded-xl overflow-hidden border border-white/5">
+                <div className={`px-3 py-1.5 flex items-center justify-between text-[10px] font-bold ${t.color}`}>
+                  <span>{t.label}</span>
+                  <span className="opacity-60">{t.tag}</span>
+                </div>
+                <div className="px-3 py-2 text-xs text-slate-300 font-medium">{t.title}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+      {/* Glow under mockup */}
+      <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 w-3/4 h-12 rounded-full pointer-events-none"
+        style={{ background: 'radial-gradient(ellipse, rgba(124,58,237,0.4) 0%, transparent 70%)', filter: 'blur(20px)' }} />
+    </div>
+  )
+}
+
 export default function HomePage() {
   return (
     <div className="space-y-36">
 
       {/* ── Hero ── */}
-      <section className="relative text-center space-y-10 pt-8">
+      <section className="relative pt-8">
         {/* Big glow orb */}
         <div className="absolute top-[-60px] left-1/2 -translate-x-1/2 w-[700px] h-[400px] rounded-full pointer-events-none"
           style={{ background: 'radial-gradient(ellipse, rgba(124,58,237,0.28) 0%, rgba(6,182,212,0.1) 50%, transparent 70%)', filter: 'blur(40px)' }} />
 
-        {/* Orbital ring decoration */}
-        <div className="absolute top-[-20px] left-1/2 -translate-x-1/2 w-[500px] h-[500px] pointer-events-none" aria-hidden>
-          <div className="absolute inset-0 rounded-full border border-violet-500/10 animate-spin-slow" />
-          <div className="absolute inset-[60px] rounded-full border border-cyan-500/8"
-            style={{ animation: 'spin-slow 18s linear infinite reverse' }} />
-          <div className="absolute top-[20px] left-1/2 -translate-x-1/2 h-2 w-2 rounded-full bg-violet-400 animate-orbit shadow-[0_0_8px_rgba(139,92,246,0.8)]" />
-          <div className="absolute top-[80px] left-1/2 -translate-x-1/2 h-1.5 w-1.5 rounded-full bg-cyan-400"
-            style={{ animation: 'orbit 12s linear infinite reverse', boxShadow: '0 0 8px rgba(6,182,212,0.8)' }} />
+        {/* Two-column layout */}
+        <div className="relative grid lg:grid-cols-2 gap-12 items-center">
+          {/* Left: text + upload */}
+          <div className="space-y-8 animate-fade-up text-center lg:text-left">
+            <div className="space-y-5">
+              <h1 className="text-6xl sm:text-7xl font-extrabold tracking-tight leading-[1.0]">
+                <span className="text-white">Screenshot</span>
+                <br />
+                <span className="text-shimmer">to Task.</span>
+              </h1>
+              <p className="text-lg text-slate-400 max-w-md leading-relaxed">
+                Upload any screenshot and GlanceFlow extracts actionable tasks automatically — no copy-paste, no manual work.
+              </p>
+            </div>
+
+            {/* Upload zone */}
+            <div className="relative max-w-md mx-auto lg:mx-0">
+              <div className="absolute -inset-2 rounded-3xl pointer-events-none"
+                style={{ background: 'linear-gradient(135deg, rgba(124,58,237,0.35), rgba(6,182,212,0.25))', filter: 'blur(20px)', animation: 'pulse-glow 3s ease-in-out infinite' }} />
+              <UploadZone />
+            </div>
+
+            {/* Badges */}
+            <div className="flex items-center gap-6 flex-wrap justify-center lg:justify-start text-sm text-slate-500">
+              <span className="flex items-center gap-2">
+                <span className="h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.8)]" />
+                Free — 3/day
+              </span>
+              <span className="h-3 w-px bg-white/10" />
+              <span className="flex items-center gap-2">
+                <span className="h-2 w-2 rounded-full bg-cyan-400 shadow-[0_0_6px_rgba(34,211,238,0.8)]" />
+                No credit card
+              </span>
+              <span className="h-3 w-px bg-white/10" />
+              <Link href="/pricing" className="font-bold text-violet-400 hover:text-violet-300 transition-colors">
+                See Premium →
+              </Link>
+            </div>
+          </div>
+
+          {/* Right: 3D Mockup */}
+          <div className="hidden lg:block">
+            <HeroMockup />
+          </div>
         </div>
 
-        {/* Headline */}
-        <div className="relative space-y-5 animate-fade-up">
-          <h1 className="text-6xl sm:text-8xl font-extrabold tracking-tight leading-[1.0]">
-            <span className="text-white">Screenshot</span>
-            <br />
-            <span className="text-shimmer">to Task.</span>
-          </h1>
-          <p className="text-lg text-slate-400 max-w-lg mx-auto leading-relaxed">
-            Upload any screenshot and GlanceFlow extracts actionable tasks automatically — no copy-paste, no manual work.
-          </p>
-        </div>
-
-        {/* Upload zone with glow */}
-        <div className="relative w-full max-w-lg mx-auto" style={{ animation: 'tilt-in 0.9s cubic-bezier(0.22,1,0.36,1) 0.2s both' }}>
-          <div className="absolute -inset-2 rounded-3xl pointer-events-none"
-            style={{ background: 'linear-gradient(135deg, rgba(124,58,237,0.35), rgba(6,182,212,0.25))', filter: 'blur(20px)', animation: 'pulse-glow 3s ease-in-out infinite' }} />
-          <UploadZone />
-        </div>
-
-        {/* Social proof badges */}
-        <div className="relative flex items-center justify-center gap-6 text-sm text-slate-500 flex-wrap">
-          <span className="flex items-center gap-2">
-            <span className="h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.8)]" />
-            Free — 3/day
-          </span>
-          <span className="h-3 w-px bg-white/10" />
-          <span className="flex items-center gap-2">
-            <span className="h-2 w-2 rounded-full bg-cyan-400 shadow-[0_0_6px_rgba(34,211,238,0.8)]" />
-            No credit card
-          </span>
-          <span className="h-3 w-px bg-white/10" />
-          <Link href="/pricing" className="font-bold text-violet-400 hover:text-violet-300 transition-colors">
-            See Premium →
-          </Link>
+        {/* Mobile mockup */}
+        <div className="lg:hidden mt-8">
+          <HeroMockup />
         </div>
       </section>
 
@@ -108,7 +167,6 @@ export default function HomePage() {
           <h2 className="text-4xl font-extrabold text-white">How it works</h2>
           <p className="text-slate-400 text-lg">Three steps, zero friction.</p>
         </ScrollReveal>
-
         <div className="grid sm:grid-cols-3 gap-6">
           {features.map((f, i) => (
             <ScrollReveal key={f.title} delay={i * 120} direction="up">
@@ -138,7 +196,6 @@ export default function HomePage() {
           <h2 className="text-4xl font-extrabold text-white">Loved by users</h2>
           <p className="text-slate-400 text-lg">Join thousands turning screenshots into done tasks.</p>
         </ScrollReveal>
-
         <div className="grid sm:grid-cols-3 gap-6">
           {testimonials.map((t, i) => (
             <ScrollReveal key={t.name} delay={i * 130} direction="up">
@@ -196,7 +253,16 @@ export default function HomePage() {
           <div className="relative space-y-5">
             <p className="text-xs font-bold uppercase tracking-widest text-violet-400">Premium Plan</p>
             <h2 className="text-4xl sm:text-5xl font-extrabold text-white">Ready to go unlimited?</h2>
-            <p className="text-slate-300 text-lg">Unlimited screenshots. Priority AI. Starting at <span className="font-bold text-white">€6.99/month</span>.</p>
+
+            {/* Live counter */}
+            <p className="text-slate-300 text-lg">
+              Join{' '}
+              <span className="font-extrabold text-white">
+                <CountUp end="1200+" duration={2500} />
+              </span>{' '}
+              users who already upgraded. Starting at <span className="font-bold text-white">€6.99/month</span>.
+            </p>
+
             <Link
               href="/pricing"
               className="shimmer-btn btn-3d inline-block rounded-2xl bg-gradient-to-r from-violet-600 to-cyan-500 px-12 py-4 text-sm font-extrabold text-white hover:opacity-90 transition-opacity mt-2"

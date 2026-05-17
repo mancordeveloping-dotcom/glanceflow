@@ -18,6 +18,12 @@ const particles = [
 export default function BackgroundFX() {
   return (
     <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none" aria-hidden>
+      {/* Animated mesh gradient */}
+      <div className="absolute inset-0 opacity-40" style={{
+        background: 'radial-gradient(ellipse 80% 80% at 20% 20%, rgba(124,58,237,0.15) 0%, transparent 50%), radial-gradient(ellipse 60% 60% at 80% 80%, rgba(6,182,212,0.12) 0%, transparent 50%), radial-gradient(ellipse 50% 50% at 50% 50%, rgba(244,63,94,0.06) 0%, transparent 60%)',
+        animation: 'aurora 15s ease-in-out infinite',
+      }} />
+
       {/* Aurora blobs */}
       <div className="bg-blob bg-blob-1" />
       <div className="bg-blob bg-blob-2" />
