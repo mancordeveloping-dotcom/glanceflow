@@ -5,12 +5,6 @@ import webpush from 'web-push'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
-webpush.setVapidDetails(
-  process.env.VAPID_SUBJECT!,
-  process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!,
-  process.env.VAPID_PRIVATE_KEY!,
-)
-
 export async function GET(req: NextRequest) {
   const secret = req.headers.get('authorization')
   if (secret !== `Bearer ${process.env.CRON_SECRET}`) {
@@ -97,6 +91,14 @@ export async function GET(req: NextRequest) {
   }
 
   // Send push notifications
+  if (process.env.VAPID_PRIVATE_KEY) {
+    webpush.setVapidDetails(
+      process.env.VAPID_SUBJECT!,
+      process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!,
+      process.env.VAPID_PRIVATE_KEY,
+    )
+  }
+
   const { data: pushSubs } = await supabaseAdmin
     .from('push_subscriptions')
     .select('user_id, subscription')
