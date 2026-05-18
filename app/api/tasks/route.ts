@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createSupabaseServer } from '@/lib/supabase-server'
+import { supabaseAdmin } from '@/lib/supabase-admin'
 import { rateLimit, getIP, PRESETS } from '@/lib/rate-limit'
 import type { ParsedTask } from '@/types'
 
@@ -44,8 +45,19 @@ export async function POST(req: NextRequest) {
   const limited = rateLimit(`tasks-post:${getIP(req)}`, PRESETS.default)
   if (limited) return limited
 
-  const supabase = await createSupabaseServer()
-  const { data: { user } } = await supabase.auth.getUser()
+  // Support both cookie auth (web) and Bearer token auth (extension)
+  const authHeader = req.headers.get('authorization')
+  const bearerToken = authHeader?.startsWith('Bearer ') ? authHeader.slice(7) : null
+
+  let user: { id: string } | null = null
+  if (bearerToken) {
+    const { data } = await supabaseAdmin.auth.getUser(bearerToken)
+    user = data.user
+  } else {
+    const supabase = await createSupabaseServer()
+    const { data } = await supabase.auth.getUser()
+    user = data.user
+  }
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const body = await req.json() as { tasks: ParsedTask[] }
@@ -65,7 +77,7 @@ export async function POST(req: NextRequest) {
     user_id: user.id,
   }))
 
-  const { data, error } = await supabase.from('tasks').insert(rows).select()
+  const { data, error } = await supabaseAdmin.from('tasks').insert(rows).select()
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json(data)
 }

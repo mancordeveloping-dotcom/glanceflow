@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GlanceFlow</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div id="app">
+
+    <!-- Header -->
+    <div class="header">
+      <div class="logo">
+        <div class="logo-icon">G</div>
+        <span class="logo-text">GlanceFlow</span>
+      </div>
+      <button id="btn-logout" class="btn-icon" style="display:none" title="Sign out">
+        <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- Login view -->
+    <div id="view-login">
+      <p class="subtitle">Sign in to extract tasks from any page</p>
+      <div class="form">
+        <input id="input-email" type="email" placeholder="Email" autocomplete="email" />
+        <input id="input-password" type="password" placeholder="Password" autocomplete="current-password" />
+        <div id="login-error" class="error-msg" style="display:none"></div>
+        <button id="btn-login" class="btn-primary">
+          <span id="login-label">Sign in</span>
+          <span id="login-spinner" class="spinner" style="display:none"></span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Main view -->
+    <div id="view-main" style="display:none">
+      <p id="user-email" class="user-email"></p>
+      <button id="btn-capture" class="btn-primary btn-capture">
+        <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6.827 6.175A2.31 2.31 0 0 1 5.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 0 0-1.134-.175 2.31 2.31 0 0 1-1.64-1.055l-.822-1.316a2.192 2.192 0 0 0-1.736-1.039 48.774 48.774 0 0 0-5.232 0 2.192 2.192 0 0 0-1.736 1.039l-.821 1.316Z" />
+          <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 12.75a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0ZM18.75 10.5h.008v.008h-.008V10.5Z" />
+        </svg>
+        <span id="capture-label">Capture this page</span>
+        <span id="capture-spinner" class="spinner" style="display:none"></span>
+      </button>
+
+      <!-- Results -->
+      <div id="results" style="display:none">
+        <div class="results-header">
+          <span id="results-count"></span>
+          <button id="btn-save-all" class="btn-save-all">Save all →</button>
+        </div>
+        <div id="task-list"></div>
+      </div>
+
+      <div id="capture-error" class="error-msg" style="display:none"></div>
+      <div id="success-msg" class="success-msg" style="display:none">✓ Tasks saved to dashboard!</div>
+    </div>
+
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>
