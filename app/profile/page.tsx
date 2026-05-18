@@ -33,12 +33,24 @@ export default function ProfilePage() {
   const [resetLoading, setResetLoading] = useState(false)
   const [portalLoading, setPortalLoading] = useState(false)
   const [theme, setTheme] = useState<ThemeId>('violet')
+  const [pushEnabled, setPushEnabled] = useState(false)
+  const [pushLoading, setPushLoading] = useState(false)
+  const [pushSupported, setPushSupported] = useState(false)
   const { lang, setLang, t } = useLang()
   const router = useRouter()
 
   useEffect(() => {
     const saved = (localStorage.getItem('gf-theme') ?? 'violet') as ThemeId
     setTheme(saved)
+
+    const supported = 'Notification' in window && 'serviceWorker' in navigator && 'PushManager' in window
+    setPushSupported(supported)
+    if (supported) {
+      navigator.serviceWorker.ready.then(async (reg) => {
+        const sub = await reg.pushManager.getSubscription()
+        setPushEnabled(!!sub)
+      }).catch(() => null)
+    }
   }, [])
 
   function applyTheme(id: ThemeId) {
@@ -67,6 +79,33 @@ export default function ProfilePage() {
     })
     setResetSent(true)
     setResetLoading(false)
+  }
+
+  async function handleTogglePush() {
+    setPushLoading(true)
+    try {
+      const reg = await navigator.serviceWorker.ready
+      if (pushEnabled) {
+        const sub = await reg.pushManager.getSubscription()
+        await sub?.unsubscribe()
+        await fetch('/api/push/subscribe', { method: 'DELETE' })
+        setPushEnabled(false)
+      } else {
+        const permission = await Notification.requestPermission()
+        if (permission !== 'granted') { setPushLoading(false); return }
+        const sub = await reg.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!,
+        })
+        await fetch('/api/push/subscribe', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(sub),
+        })
+        setPushEnabled(true)
+      }
+    } catch { /* ignore */ }
+    setPushLoading(false)
   }
 
   async function handlePortal() {
@@ -205,6 +244,40 @@ export default function ProfilePage() {
             </button>
           ))}
         </div>
+      </div>
+
+      {/* Push notifications */}
+      {pushSupported && (
+        <div className="glass inner-highlight rounded-2xl p-6 border border-white/5 space-y-3">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-semibold text-slate-400">Push Notifications</p>
+              <p className="text-xs text-slate-500 mt-0.5">Daily reminders for tasks due today</p>
+            </div>
+            <button
+              onClick={handleTogglePush}
+              disabled={pushLoading}
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors disabled:opacity-50 ${
+                pushEnabled ? 'bg-violet-600' : 'bg-white/10'
+              }`}
+            >
+              <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                pushEnabled ? 'translate-x-6' : 'translate-x-1'
+              }`} />
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Reset tutorial */}
+      <div className="glass inner-highlight rounded-2xl p-6 border border-white/5 space-y-3">
+        <p className="text-sm font-semibold text-slate-400">Tutorial</p>
+        <button
+          onClick={() => { localStorage.removeItem('gf_onboarded'); window.location.reload() }}
+          className="w-full rounded-xl border border-white/10 bg-white/5 py-2.5 text-sm font-semibold text-slate-300 hover:bg-white/10 transition-colors"
+        >
+          Show welcome tutorial again
+        </button>
       </div>
 
       {/* Change password */}

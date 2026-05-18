@@ -41,6 +41,8 @@ export default function TaskCard({ task, projects = [], onToggle, onDelete, onEd
   const [deleting, setDeleting]   = useState(false)
   const [editing, setEditing]     = useState(false)
   const [saving, setSaving]       = useState(false)
+  const [sharing, setSharing]     = useState(false)
+  const [shared, setShared]       = useState(false)
 
   const [title,       setTitle]       = useState(task.title)
   const [description, setDescription] = useState(task.description ?? '')
@@ -51,6 +53,18 @@ export default function TaskCard({ task, projects = [], onToggle, onDelete, onEd
   const [projectId,   setProjectId]   = useState(task.project_id ?? '')
   const [priority,    setPriority]    = useState<TaskPriority | ''>(task.priority ?? '')
   const [recurrence,  setRecurrence]  = useState<TaskRecurrence | ''>(task.recurrence ?? '')
+
+  async function handleShare() {
+    setSharing(true)
+    try {
+      const res = await fetch(`/api/tasks/${task.id}/share`, { method: 'POST' })
+      const { token } = await res.json() as { token: string }
+      await navigator.clipboard.writeText(`${window.location.origin}/shared/${token}`)
+      setShared(true)
+      setTimeout(() => setShared(false), 2000)
+    } catch { /* ignore */ }
+    setSharing(false)
+  }
 
   function handleDelete() {
     if (!onDelete) return
@@ -189,6 +203,13 @@ export default function TaskCard({ task, projects = [], onToggle, onDelete, onEd
           )}
         </div>
         <div className="flex items-center gap-1">
+          <button onClick={handleShare} disabled={sharing}
+            className="rounded p-1 opacity-60 hover:opacity-100 transition-all disabled:opacity-20" title="Share">
+            {shared
+              ? <svg className="h-3 w-3 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+              : <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" /></svg>
+            }
+          </button>
           <button onClick={handleEditOpen} className="rounded p-1 opacity-60 hover:opacity-100 transition-opacity" title="Edit">
             <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z" />

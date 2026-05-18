@@ -1,8 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import { Resend } from 'resend'
+import webpush from 'web-push'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
+
+webpush.setVapidDetails(
+  process.env.VAPID_SUBJECT!,
+  process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!,
+  process.env.VAPID_PRIVATE_KEY!,
+)
 
 export async function GET(req: NextRequest) {
   const secret = req.headers.get('authorization')
@@ -87,6 +94,28 @@ export async function GET(req: NextRequest) {
       `,
     })
     sent++
+  }
+
+  // Send push notifications
+  const { data: pushSubs } = await supabaseAdmin
+    .from('push_subscriptions')
+    .select('user_id, subscription')
+
+  if (pushSubs?.length) {
+    for (const [userId, userTasks] of byUser) {
+      const sub = pushSubs.find(s => s.user_id === userId)
+      if (!sub) continue
+      try {
+        await webpush.sendNotification(
+          sub.subscription,
+          JSON.stringify({
+            title: 'GlanceFlow — Tasks due today',
+            body: `You have ${userTasks.length} task${userTasks.length > 1 ? 's' : ''} due today`,
+            url: '/dashboard',
+          })
+        )
+      } catch { /* subscription may be expired */ }
+    }
   }
 
   return NextResponse.json({ sent, date: today })

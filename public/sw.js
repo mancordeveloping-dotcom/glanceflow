@@ -20,3 +20,29 @@ self.addEventListener('fetch', (e) => {
     fetch(e.request).catch(() => caches.match(e.request))
   )
 })
+
+self.addEventListener('push', (e) => {
+  if (!e.data) return
+  const data = e.data.json()
+  e.waitUntil(
+    self.registration.showNotification(data.title ?? 'GlanceFlow', {
+      body: data.body,
+      icon: '/icon-192.png',
+      badge: '/icon-192.png',
+      data: { url: data.url ?? '/dashboard' },
+    })
+  )
+})
+
+self.addEventListener('notificationclick', (e) => {
+  e.notification.close()
+  e.waitUntil(
+    clients.matchAll({ type: 'window' }).then((list) => {
+      const url = e.notification.data?.url ?? '/dashboard'
+      for (const client of list) {
+        if (client.url.includes(url) && 'focus' in client) return client.focus()
+      }
+      return clients.openWindow(url)
+    })
+  )
+})

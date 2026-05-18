@@ -25,6 +25,7 @@ export interface Task {
   project_id: string | null
   priority: TaskPriority | null
   recurrence: TaskRecurrence | null
+  share_token: string | null
   created_at: string
   updated_at: string
 }
