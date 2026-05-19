@@ -10,7 +10,9 @@ import TaskCard from '@/components/TaskCard'
 import TaskCardSkeleton from '@/components/TaskCardSkeleton'
 import PomodoroTimer from '@/components/PomodoroTimer'
 import NotificationManager from '@/components/NotificationManager'
-import type { Task, Project } from '@/types'
+import GamificationWidget from '@/components/GamificationWidget'
+import TemplateModal from '@/components/TemplateModal'
+import type { Task, Project, ParsedTask } from '@/types'
 
 const PRIORITY_ORDER = { urgent: 0, high: 1, medium: 2, low: 3 }
 
@@ -74,6 +76,7 @@ export default function DashboardPage() {
   const [dragOrder, setDragOrder] = useState<Task[] | null>(null)
   const [dragId, setDragId] = useState<string | null>(null)
   const [dragOverId, setDragOverId] = useState<string | null>(null)
+  const [templateOpen, setTemplateOpen] = useState(false)
   const { toast } = useToast()
   const router = useRouter()
 
@@ -151,6 +154,21 @@ export default function DashboardPage() {
     }
   }
 
+  async function handleAddTemplates(templateTasks: ParsedTask[]) {
+    const res = await fetch('/api/tasks', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ tasks: templateTasks }),
+    })
+    if (res.ok) {
+      const newTasks = await res.json() as Task[]
+      setTasks([...newTasks, ...tasks])
+      toast(`${templateTasks.length} task aggiunti!`, 'success')
+    } else {
+      toast('Errore aggiunta template', 'error')
+    }
+  }
+
   async function handleSummary() {
     setSummaryLoading(true)
     const res = await fetch('/api/summary', { method: 'POST' })
@@ -208,6 +226,7 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-8">
+      <TemplateModal open={templateOpen} onClose={() => setTemplateOpen(false)} onAdd={handleAddTemplates} />
       <NotificationManager tasks={tasks} />
       <PomodoroTimer />
       {/* History limited banner */}
@@ -261,6 +280,12 @@ export default function DashboardPage() {
         {/* Search + Export */}
         {!loading && tasks.length > 0 && (
           <div className="flex items-center gap-2">
+          <button
+            onClick={() => setTemplateOpen(true)}
+            className="flex items-center gap-1.5 rounded-xl border border-violet-500/20 bg-violet-500/10 px-3 py-2 text-xs font-semibold text-violet-300 hover:bg-violet-500/20 transition-colors"
+          >
+            📋 Templates
+          </button>
           <button
             onClick={() => exportCSV(tasks)}
             className="flex items-center gap-1.5 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs font-semibold text-slate-300 hover:bg-white/10 transition-colors"
@@ -330,6 +355,8 @@ export default function DashboardPage() {
           ))}
         </div>
       )}
+
+      {!loading && tasks.length > 0 && <GamificationWidget />}
 
       {!loading && dueTodayTasks.length > 0 && (
         <div className="rounded-2xl border border-violet-500/20 bg-violet-500/5 px-5 py-4 space-y-3">

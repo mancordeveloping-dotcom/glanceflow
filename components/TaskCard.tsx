@@ -44,6 +44,18 @@ export default function TaskCard({ task, projects = [], onToggle, onDelete, onEd
   const [sharing, setSharing]     = useState(false)
   const [shared, setShared]       = useState(false)
 
+  async function handleShare() {
+    setSharing(true)
+    try {
+      const res = await fetch(`/api/tasks/${task.id}/share`, { method: 'POST' })
+      const { url } = await res.json() as { url: string }
+      await navigator.clipboard.writeText(url)
+      setShared(true)
+      setTimeout(() => setShared(false), 2000)
+    } catch { /* ignore */ }
+    setSharing(false)
+  }
+
   const [title,       setTitle]       = useState(task.title)
   const [description, setDescription] = useState(task.description ?? '')
   const [date,        setDate]        = useState(task.date ?? '')
@@ -53,18 +65,6 @@ export default function TaskCard({ task, projects = [], onToggle, onDelete, onEd
   const [projectId,   setProjectId]   = useState(task.project_id ?? '')
   const [priority,    setPriority]    = useState<TaskPriority | ''>(task.priority ?? '')
   const [recurrence,  setRecurrence]  = useState<TaskRecurrence | ''>(task.recurrence ?? '')
-
-  async function handleShare() {
-    setSharing(true)
-    try {
-      const res = await fetch(`/api/tasks/${task.id}/share`, { method: 'POST' })
-      const { token } = await res.json() as { token: string }
-      await navigator.clipboard.writeText(`${window.location.origin}/shared/${token}`)
-      setShared(true)
-      setTimeout(() => setShared(false), 2000)
-    } catch { /* ignore */ }
-    setSharing(false)
-  }
 
   function handleDelete() {
     if (!onDelete) return
@@ -209,6 +209,18 @@ export default function TaskCard({ task, projects = [], onToggle, onDelete, onEd
               ? <svg className="h-3 w-3 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
               : <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" /></svg>
             }
+          </button>
+          <button onClick={handleShare} disabled={sharing}
+            className="rounded p-1 opacity-60 hover:opacity-100 transition-opacity" title={shared ? 'Link copied!' : 'Share'}>
+            {shared ? (
+              <svg className="h-3 w-3 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+              </svg>
+            ) : (
+              <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M7.217 10.907a2.25 2.25 0 1 0 0 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186 9.566-5.314m-9.566 7.5 9.566 5.314m0 0a2.25 2.25 0 1 0 3.935 2.186 2.25 2.25 0 0 0-3.935-2.186Zm0-12.814a2.25 2.25 0 1 0 3.933-2.185 2.25 2.25 0 0 0-3.933 2.185Z" />
+              </svg>
+            )}
           </button>
           <button onClick={handleEditOpen} className="rounded p-1 opacity-60 hover:opacity-100 transition-opacity" title="Edit">
             <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>

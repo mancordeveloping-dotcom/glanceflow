@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createSupabaseServer } from '@/lib/supabase-server'
+import { supabaseAdmin } from '@/lib/supabase-admin'
 import { rateLimit, getIP, PRESETS } from '@/lib/rate-limit'
 import type { TaskStatus, TaskPriority, TaskRecurrence } from '@/types'
 
@@ -49,6 +50,37 @@ export async function PATCH(
     .single()
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+
+  // Update gamification stats when task marked done
+  if (body.status === 'done') {
+    void (async () => {
+      try {
+        const { data: profile } = await supabaseAdmin
+          .from('user_profiles')
+          .select('streak_days, last_active_date, total_done, badges')
+          .eq('id', user.id)
+          .maybeSingle()
+
+        const today = new Date().toISOString().split('T')[0]
+        const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0]
+        const lastActive = profile?.last_active_date ?? null
+        const currentStreak = profile?.streak_days ?? 0
+        const newStreak = lastActive === yesterday ? currentStreak + 1 : lastActive === today ? currentStreak : 1
+        const newTotal = (profile?.total_done ?? 0) + 1
+        const badges: string[] = profile?.badges ?? []
+        if (newTotal >= 1  && !badges.includes('first_task')) badges.push('first_task')
+        if (newTotal >= 10 && !badges.includes('tasks_10'))   badges.push('tasks_10')
+        if (newTotal >= 50 && !badges.includes('tasks_50'))   badges.push('tasks_50')
+        if (newStreak >= 3 && !badges.includes('streak_3'))   badges.push('streak_3')
+        if (newStreak >= 7 && !badges.includes('streak_7'))   badges.push('streak_7')
+
+        await supabaseAdmin
+          .from('user_profiles')
+          .update({ streak_days: newStreak, last_active_date: today, total_done: newTotal, badges })
+          .eq('id', user.id)
+      } catch { /* non-critical */ }
+    })()
+  }
 
   // Auto-create next occurrence for recurring tasks when marked done
   if (body.status === 'done' && data.recurrence && data.date) {
