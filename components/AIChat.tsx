@@ -65,7 +65,7 @@ export default function AIChat({ tasks }: AIChatProps) {
       {/* Floating button */}
       <button
         onClick={() => setOpen(o => !o)}
-        className={`fixed bottom-6 right-24 z-50 h-14 w-14 rounded-full shadow-2xl flex items-center justify-center transition-all duration-300 ${open ? 'bg-white/10 border border-white/20 scale-90' : 'bg-gradient-to-br from-violet-600 to-cyan-500 shadow-violet-500/40 hover:scale-110'}`}
+        className={`fixed bottom-6 right-44 z-50 h-14 w-14 rounded-full shadow-2xl flex items-center justify-center transition-all duration-300 ${open ? 'bg-white/10 border border-white/20 scale-90' : 'bg-gradient-to-br from-violet-600 to-cyan-500 shadow-violet-500/40 hover:scale-110'}`}
         title="AI Assistant"
         style={{ boxShadow: open ? undefined : '0 8px 32px rgba(139,92,246,0.5)' }}
       >
@@ -88,7 +88,7 @@ export default function AIChat({ tasks }: AIChatProps) {
 
       {/* Chat panel */}
       {open && (
-        <div className="fixed bottom-24 right-24 z-50 w-[340px] max-w-[calc(100vw-24px)] glass rounded-2xl border border-white/10 shadow-2xl shadow-violet-900/40 flex flex-col overflow-hidden"
+        <div className="fixed bottom-24 right-6 z-50 w-[340px] max-w-[calc(100vw-24px)] glass rounded-2xl border border-white/10 shadow-2xl shadow-violet-900/40 flex flex-col overflow-hidden"
           style={{ height: '440px' }}>
           {/* Header */}
           <div className="flex items-center gap-3 px-4 py-3 border-b border-white/8 shrink-0"
