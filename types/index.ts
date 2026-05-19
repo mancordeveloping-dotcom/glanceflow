@@ -37,6 +37,7 @@ export interface ParsedTask {
   time: string | null
   location: string | null
   type: TaskType
+  priority?: TaskPriority | null
 }
 
 export interface TaskStore {

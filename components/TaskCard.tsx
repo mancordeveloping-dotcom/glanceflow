@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import type { Task, Project, TaskPriority, TaskRecurrence } from '@/types'
 
 const typeColors: Record<Task['type'], string> = {
@@ -34,15 +34,39 @@ interface TaskCardProps {
   onToggle?: (task: Task) => void
   onDelete?: (task: Task) => void
   onEdit?: (task: Task, updates: Partial<Task>) => Promise<void>
+  selected?: boolean
+  onSelect?: (id: string) => void
 }
 
-export default function TaskCard({ task, projects = [], onToggle, onDelete, onEdit }: TaskCardProps) {
+function formatTime(s: number) {
+  const h = Math.floor(s / 3600)
+  const m = Math.floor((s % 3600) / 60)
+  const sec = s % 60
+  if (h > 0) return `${h}:${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`
+  return `${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`
+}
+
+export default function TaskCard({ task, projects = [], onToggle, onDelete, onEdit, selected, onSelect }: TaskCardProps) {
   const isDone = task.status === 'done'
   const [deleting, setDeleting]   = useState(false)
   const [editing, setEditing]     = useState(false)
   const [saving, setSaving]       = useState(false)
   const [sharing, setSharing]     = useState(false)
   const [shared, setShared]       = useState(false)
+
+  // Task timer
+  const [timerRunning, setTimerRunning] = useState(false)
+  const [timerSeconds, setTimerSeconds] = useState(0)
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
+
+  useEffect(() => {
+    if (timerRunning) {
+      timerRef.current = setInterval(() => setTimerSeconds(s => s + 1), 1000)
+    } else {
+      if (timerRef.current) clearInterval(timerRef.current)
+    }
+    return () => { if (timerRef.current) clearInterval(timerRef.current) }
+  }, [timerRunning])
 
   async function handleShare() {
     setSharing(true)
@@ -190,10 +214,22 @@ export default function TaskCard({ task, projects = [], onToggle, onDelete, onEd
   const pCfg = task.priority ? priorityConfig[task.priority] : null
 
   return (
-    <div className={`glass rounded-2xl border border-white/5 overflow-hidden card-lift ${isDone ? 'opacity-55' : ''}`}>
+    <div className={`glass rounded-2xl border overflow-hidden card-lift transition-all ${isDone ? 'opacity-55' : ''} ${selected ? 'border-violet-500/60 ring-2 ring-violet-500/20' : 'border-white/5'}`}>
       {/* Type bar */}
       <div className={`px-4 py-2 flex items-center justify-between ${typeColors[task.type]}`}>
         <div className="flex items-center gap-2">
+          {onSelect && (
+            <button
+              onClick={() => onSelect(task.id)}
+              className={`shrink-0 h-4 w-4 rounded border-2 flex items-center justify-center transition-colors ${selected ? 'border-violet-400 bg-violet-500' : 'border-white/30 bg-transparent hover:border-violet-400'}`}
+            >
+              {selected && (
+                <svg className="h-2.5 w-2.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                </svg>
+              )}
+            </button>
+          )}
           <span className="text-xs font-bold tracking-wide">{typeLabel[task.type]}</span>
           {pCfg && (
             <span className={`flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold ${pCfg.color}`}>
@@ -203,13 +239,6 @@ export default function TaskCard({ task, projects = [], onToggle, onDelete, onEd
           )}
         </div>
         <div className="flex items-center gap-1">
-          <button onClick={handleShare} disabled={sharing}
-            className="rounded p-1 opacity-60 hover:opacity-100 transition-all disabled:opacity-20" title="Share">
-            {shared
-              ? <svg className="h-3 w-3 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
-              : <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" /></svg>
-            }
-          </button>
           <button onClick={handleShare} disabled={sharing}
             className="rounded p-1 opacity-60 hover:opacity-100 transition-opacity" title={shared ? 'Link copied!' : 'Share'}>
             {shared ? (
@@ -273,6 +302,39 @@ export default function TaskCard({ task, projects = [], onToggle, onDelete, onEd
             )
           })()}
         </div>
+
+        {/* Timer */}
+        {!isDone && (
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setTimerRunning(r => !r)}
+              className={`flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-bold transition-all border ${
+                timerRunning
+                  ? 'border-red-500/30 bg-red-500/10 text-red-400 hover:bg-red-500/20'
+                  : 'border-white/10 bg-white/5 text-slate-400 hover:text-white hover:bg-white/10'
+              }`}
+              title={timerRunning ? 'Pause timer' : 'Start timer'}
+            >
+              {timerRunning ? (
+                <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>
+              ) : (
+                <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+              )}
+              <span className={`tabular-nums ${timerRunning ? 'text-red-400' : timerSeconds > 0 ? 'text-white' : ''}`}>
+                {formatTime(timerSeconds)}
+              </span>
+            </button>
+            {timerSeconds > 0 && !timerRunning && (
+              <button
+                onClick={() => setTimerSeconds(0)}
+                className="rounded-xl px-2 py-1.5 text-[10px] text-slate-500 hover:text-white border border-white/8 bg-white/3 hover:bg-white/8 transition-colors"
+                title="Reset timer"
+              >
+                ↺
+              </button>
+            )}
+          </div>
+        )}
 
         {onToggle && (
           <div className="flex gap-2">

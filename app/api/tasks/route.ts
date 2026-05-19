@@ -71,6 +71,7 @@ export async function POST(req: NextRequest) {
     time: t.time,
     location: t.location,
     type: t.type,
+    priority: t.priority ?? null,
     status: 'pending',
     description: null,
     screenshot_url: null,

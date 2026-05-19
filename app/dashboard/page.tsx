@@ -13,9 +13,12 @@ import NotificationManager from '@/components/NotificationManager'
 import GamificationWidget from '@/components/GamificationWidget'
 import TemplateModal from '@/components/TemplateModal'
 import PWAInstallBanner from '@/components/PWAInstallBanner'
+import CalendarView from '@/components/CalendarView'
+import AIChat from '@/components/AIChat'
 import type { Task, Project, ParsedTask } from '@/types'
 
 type SortBy = 'priority' | 'date_asc' | 'date_desc' | 'created' | 'title'
+type ViewMode = 'list' | 'calendar'
 
 const PRIORITY_RANK: Record<string, number> = { urgent: 0, high: 1, medium: 2, low: 3 }
 
@@ -81,6 +84,8 @@ export default function DashboardPage() {
   const [dragOverId, setDragOverId] = useState<string | null>(null)
   const [templateOpen, setTemplateOpen] = useState(false)
   const [sortBy, setSortBy] = useState<SortBy>('priority')
+  const [viewMode, setViewMode] = useState<ViewMode>('list')
+  const [selectedIds, setSelectedIds] = useState<string[]>([])
   const { toast } = useToast()
   const router = useRouter()
 
@@ -171,6 +176,35 @@ export default function DashboardPage() {
     } else {
       toast('Errore aggiunta template', 'error')
     }
+  }
+
+  function toggleSelect(id: string) {
+    setSelectedIds(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id])
+  }
+
+  function selectAll() {
+    setSelectedIds(displayTasks.map(t => t.id))
+  }
+
+  async function bulkMarkDone() {
+    const ids = [...selectedIds]
+    setSelectedIds([])
+    await Promise.all(ids.map(id => {
+      updateTask(id, { status: 'done' })
+      return fetch(`/api/tasks/${id}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status: 'done' }) })
+    }))
+    triggerConfetti()
+    toast(`${ids.length} task completati!`, 'success')
+  }
+
+  async function bulkDelete() {
+    const ids = [...selectedIds]
+    setSelectedIds([])
+    await Promise.all(ids.map(id => {
+      removeTask(id)
+      return fetch(`/api/tasks/${id}`, { method: 'DELETE' })
+    }))
+    toast(`${ids.length} task eliminati`, 'info')
   }
 
   async function handleSummary() {
@@ -298,6 +332,24 @@ export default function DashboardPage() {
           >
             📋 Templates
           </button>
+          {/* View mode toggle */}
+          <div className="flex rounded-xl border border-white/10 bg-white/3 p-1 gap-1">
+            <button onClick={() => setViewMode('list')}
+              className={`rounded-lg px-2.5 py-1.5 text-xs transition-all ${viewMode === 'list' ? 'bg-white/10 text-white' : 'text-slate-500 hover:text-white'}`}
+              title="List view">
+              <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+              </svg>
+            </button>
+            <button onClick={() => setViewMode('calendar')}
+              className={`rounded-lg px-2.5 py-1.5 text-xs transition-all ${viewMode === 'calendar' ? 'bg-white/10 text-white' : 'text-slate-500 hover:text-white'}`}
+              title="Calendar view">
+              <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
+              </svg>
+            </button>
+          </div>
+
           <select
             value={sortBy}
             onChange={e => setSortBy(e.target.value as SortBy)}
@@ -510,7 +562,40 @@ export default function DashboardPage() {
         </div>
       )}
 
-      {!loading && displayTasks.length > 0 && (
+      {/* Bulk action bar */}
+      {selectedIds.length > 0 && (
+        <div className="sticky top-4 z-30 flex items-center justify-between gap-4 glass rounded-2xl border border-violet-500/30 px-5 py-3 shadow-2xl shadow-violet-900/40">
+          <div className="flex items-center gap-3">
+            <span className="h-6 w-6 rounded-full bg-violet-500 flex items-center justify-center text-white text-xs font-black shrink-0">{selectedIds.length}</span>
+            <span className="text-sm font-bold text-white">{selectedIds.length} selected</span>
+            <button onClick={selectAll} className="text-xs text-slate-500 hover:text-violet-300 transition-colors">Select all</button>
+          </div>
+          <div className="flex items-center gap-2">
+            <button onClick={bulkMarkDone}
+              className="flex items-center gap-1.5 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-2 text-xs font-bold text-emerald-300 hover:bg-emerald-500/20 transition-colors">
+              ✓ Mark done
+            </button>
+            <button onClick={bulkDelete}
+              className="flex items-center gap-1.5 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-2 text-xs font-bold text-red-300 hover:bg-red-500/20 transition-colors">
+              🗑 Delete
+            </button>
+            <button onClick={() => setSelectedIds([])}
+              className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs text-slate-400 hover:text-white transition-colors">
+              ✕
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Calendar view */}
+      {!loading && viewMode === 'calendar' && (
+        <div className="glass rounded-3xl border border-white/8 p-6">
+          <CalendarView tasks={tasks} projects={projects} onToggle={handleToggle} onEdit={handleEdit} />
+        </div>
+      )}
+
+      {/* List view */}
+      {!loading && viewMode === 'list' && displayTasks.length > 0 && (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {displayTasks.map((task) => (
             <div
@@ -533,11 +618,22 @@ export default function DashboardPage() {
               className={`transition-all duration-200 rounded-2xl ${dragId === task.id ? 'opacity-40 scale-95' : ''} ${dragOverId === task.id && dragId !== task.id ? 'ring-2 ring-violet-500/60' : ''}`}
               style={{ cursor: dragId ? 'grabbing' : 'grab' }}
             >
-              <TaskCard task={task} projects={projects} onToggle={handleToggle} onDelete={handleDelete} onEdit={handleEdit} />
+              <TaskCard
+                task={task}
+                projects={projects}
+                onToggle={handleToggle}
+                onDelete={handleDelete}
+                onEdit={handleEdit}
+                selected={selectedIds.includes(task.id)}
+                onSelect={toggleSelect}
+              />
             </div>
           ))}
         </div>
       )}
+
+      {/* AI Chat — floating */}
+      <AIChat tasks={tasks} />
     </div>
   )
 }

@@ -18,7 +18,8 @@ Return ONLY valid JSON, no other text:
       "date": null,
       "time": null,
       "location": null,
-      "type": "task"
+      "type": "task",
+      "priority": "medium"
     }
   ]
 }
@@ -29,6 +30,7 @@ Rules:
 - time: time string if found, otherwise null
 - location: location string if found, otherwise null
 - type: "task", "event", or "reminder"
+- priority: assign based on urgency/importance — "urgent" (deadlines, ASAP, overdue), "high" (important but not immediate), "medium" (normal tasks), "low" (nice to have, someday)
 - If nothing found: {"tasks": []}
 - ONLY JSON, no explanation
 
@@ -38,6 +40,11 @@ TEXT TO ANALYZE:
 function sanitizeType(t: string): ParsedTask['type'] {
   if (t === 'event' || t === 'reminder') return t
   return 'task'
+}
+
+function sanitizePriority(p: string): ParsedTask['priority'] {
+  if (p === 'urgent' || p === 'high' || p === 'medium' || p === 'low') return p
+  return 'medium'
 }
 
 async function fetchUrlText(url: string): Promise<string> {
@@ -114,6 +121,7 @@ export async function POST(req: NextRequest) {
       time: t.time ? String(t.time) : null,
       location: t.location ? String(t.location) : null,
       type: sanitizeType(String(t.type ?? 'task')),
+      priority: sanitizePriority(String(t.priority ?? 'medium')),
     }))
 
     await supabaseAdmin.from('usage_logs').insert({ user_id: user.id })
