@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabaseBrowser } from '@/lib/supabase-browser'
+import Tilt3D from '@/components/Tilt3D'
 import type { Task } from '@/types'
 
 interface Expense {
@@ -322,11 +323,11 @@ export default function StatsPage() {
           { label: 'Completion rate',  value: `${completionRate}%`,                             color: 'text-violet-400',   icon: '📈' },
           { label: 'Overdue',          value: overdueCount,                                     color: overdueCount > 0 ? 'text-red-400' : 'text-slate-400', icon: '⚠️' },
         ].map((k, i) => (
-          <div key={i} className="glass inner-highlight rounded-2xl p-5 text-center space-y-1 border border-white/5">
-            <div className="text-xl mb-1">{k.icon}</div>
-            <p className={`text-3xl font-extrabold ${k.color}`}>{k.value}</p>
+          <Tilt3D key={i} intensity={8} className="glass holographic inner-highlight rounded-2xl p-5 text-center space-y-1 border border-white/5">
+            <div className="text-xl mb-1 depth-sm">{k.icon}</div>
+            <p className={`text-3xl font-extrabold ${k.color} depth-md`}>{k.value}</p>
             <p className="text-xs text-slate-500">{k.label}</p>
-          </div>
+          </Tilt3D>
         ))}
       </div>
 
@@ -344,18 +345,18 @@ export default function StatsPage() {
 
       {/* Donut charts */}
       <div className="grid sm:grid-cols-3 gap-6">
-        <div className="glass inner-highlight rounded-2xl p-6 border border-white/5 space-y-4">
-          <p className="font-bold text-white text-sm">By type</p>
-          <DonutChart segments={typeSegments} />
-        </div>
-        <div className="glass inner-highlight rounded-2xl p-6 border border-white/5 space-y-4">
-          <p className="font-bold text-white text-sm">By status</p>
-          <DonutChart segments={statusSegments} />
-        </div>
-        <div className="glass inner-highlight rounded-2xl p-6 border border-white/5 space-y-4">
-          <p className="font-bold text-white text-sm">By priority</p>
-          <DonutChart segments={prioritySegments} />
-        </div>
+        <Tilt3D intensity={6} className="glass holographic inner-highlight rounded-2xl p-6 border border-white/5 space-y-4">
+          <p className="font-bold text-white text-sm depth-xs">By type</p>
+          <div className="depth-sm"><DonutChart segments={typeSegments} /></div>
+        </Tilt3D>
+        <Tilt3D intensity={6} className="glass holographic inner-highlight rounded-2xl p-6 border border-white/5 space-y-4">
+          <p className="font-bold text-white text-sm depth-xs">By status</p>
+          <div className="depth-sm"><DonutChart segments={statusSegments} /></div>
+        </Tilt3D>
+        <Tilt3D intensity={6} className="glass holographic inner-highlight rounded-2xl p-6 border border-white/5 space-y-4">
+          <p className="font-bold text-white text-sm depth-xs">By priority</p>
+          <div className="depth-sm"><DonutChart segments={prioritySegments} /></div>
+        </Tilt3D>
       </div>
 
       {/* Activity heatmap */}

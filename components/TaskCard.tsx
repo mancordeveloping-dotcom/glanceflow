@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import type { Task, Project, TaskPriority, TaskRecurrence } from '@/types'
+import Tilt3D from '@/components/Tilt3D'
 
 const typeColors: Record<Task['type'], string> = {
   task:     'text-violet-400 bg-violet-500/10',
@@ -264,8 +265,12 @@ export default function TaskCard({ task, projects = [], onToggle, onDelete, onEd
   const isOverdue = !isDone && task.date && task.date < todayStr
 
   return (
-    <div className={`glass rounded-2xl border overflow-hidden card-lift transition-all ${isDone ? 'opacity-55' : ''} ${selected ? 'border-violet-500/60 ring-2 ring-violet-500/20' : isOverdue ? 'border-red-500/40' : 'border-white/5'}`}
-      style={isOverdue ? { boxShadow: '0 0 0 1px rgba(239,68,68,0.15), 0 4px 24px rgba(0,0,0,0.3)' } : undefined}>
+    <Tilt3D
+      intensity={8}
+      scale={1.025}
+      className={`glass rounded-2xl border overflow-hidden transition-all ${isDone ? 'opacity-55' : ''} ${selected ? 'border-violet-500/60 ring-2 ring-violet-500/20' : isOverdue ? 'border-red-500/40' : 'border-white/5'}`}
+      style={isOverdue ? { boxShadow: '0 0 0 1px rgba(239,68,68,0.15), 0 4px 24px rgba(0,0,0,0.3)' } : undefined}
+    >
       {/* Type bar */}
       <div className={`px-4 py-2 flex items-center justify-between ${typeColors[task.type]}`}>
         <div className="flex items-center gap-2">
@@ -452,6 +457,6 @@ export default function TaskCard({ task, projects = [], onToggle, onDelete, onEd
           </div>
         )}
       </div>
-    </div>
+    </Tilt3D>
   )
 }

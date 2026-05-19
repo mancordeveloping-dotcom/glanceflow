@@ -706,6 +706,130 @@ body {
   box-shadow: 0 0 20px rgba(139,92,246,0.15), inset 0 1px 0 rgba(255,255,255,0.1);
 }
 
+/* ══════════════════════════════════════════════════════════
+   ── 3D DEPTH SYSTEM ──────────────────────────────────────
+   Use preserve-3d on a Tilt3D wrapper, then depth-* on children
+   to make elements pop out at different Z-depths.
+   ══════════════════════════════════════════════════════════ */
+
+.preserve-3d { transform-style: preserve-3d; }
+
+/* Depth layers — combine with Tilt3D parent */
+.depth-xs  { transform: translateZ(6px); }
+.depth-sm  { transform: translateZ(14px); }
+.depth-md  { transform: translateZ(24px); }
+.depth-lg  { transform: translateZ(40px); }
+.depth-xl  { transform: translateZ(60px); }
+
+/* ── Holographic / foil shimmer card ── */
+@keyframes holo-shift {
+  0%   { background-position: 0%   50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0%   50%; }
+}
+
+.holographic {
+  position: relative;
+  overflow: hidden;
+}
+.holographic::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    125deg,
+    rgba(255,0,120,0)    0%,
+    rgba(255,0,120,0.06) 15%,
+    rgba(0,220,255,0.08) 30%,
+    rgba(120,255,120,0.06) 45%,
+    rgba(255,200,0,0.06) 60%,
+    rgba(180,0,255,0.07) 75%,
+    rgba(0,180,255,0)    90%
+  );
+  background-size: 300% 300%;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 2;
+  transition: opacity 0.3s ease;
+  animation: holo-shift 6s ease infinite;
+}
+.holographic:hover::before { opacity: 1; }
+
+/* ── 3D Raised element — inner card pop ── */
+.raised-3d {
+  transform: translateZ(20px);
+  filter: drop-shadow(0 8px 20px rgba(0,0,0,0.5));
+}
+
+/* ── 3D Shadow stacking — creates a "thick card" illusion ── */
+.card-3d-thick {
+  position: relative;
+  transform-style: preserve-3d;
+}
+.card-3d-thick::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  transform: translateZ(-12px);
+  background: rgba(124,58,237,0.25);
+  filter: blur(16px);
+  pointer-events: none;
+}
+
+/* ── Foil border — rainbow gradient border that shifts ── */
+@keyframes foil-border {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+.foil-border {
+  position: relative;
+}
+.foil-border::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  background: linear-gradient(135deg, #7c3aed, #06b6d4, #ec4899, #f59e0b, #7c3aed);
+  background-size: 300% 300%;
+  animation: foil-border 4s ease infinite;
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  padding: 1px;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 1;
+  transition: opacity 0.35s ease;
+}
+.foil-border:hover::before { opacity: 1; }
+
+/* ── 3D floating panel (hero section) ── */
+@keyframes panel-bob {
+  0%, 100% { transform: perspective(900px) rotateX(4deg) rotateY(-2deg) translateY(0px); }
+  50%       { transform: perspective(900px) rotateX(4deg) rotateY(-2deg) translateY(-10px); }
+}
+.panel-3d {
+  animation: panel-bob 5s ease-in-out infinite;
+  transform-style: preserve-3d;
+  box-shadow:
+    20px 30px 80px rgba(0,0,0,0.65),
+    0 0 0 1px rgba(139,92,246,0.2),
+    inset 0 1px 0 rgba(255,255,255,0.06);
+}
+
+/* ── 3D icon container ── */
+.icon-3d {
+  transform-style: preserve-3d;
+  transition: transform 0.3s cubic-bezier(0.22,1,0.36,1);
+}
+.icon-3d:hover {
+  transform: translateZ(16px) rotateY(15deg) scale(1.1);
+}
+
 /* ── Light mode ── */
 [data-mode="light"] {
   --background: #f1f5f9;

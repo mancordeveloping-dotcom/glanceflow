@@ -69,19 +69,97 @@ const trust = [
   '✨ Free to start',
 ]
 
-/* ─── Spotlight card ────────────────────────────────────── */
+/* ─── Spotlight + 3D Tilt card ─────────────────────────── */
 
-function SpotlightCard({ children, className = '' }: { children: React.ReactNode; className?: string }) {
-  const ref = useRef<HTMLDivElement>(null)
-  const handleMove = (e: React.MouseEvent) => {
-    if (!ref.current) return
-    const r = ref.current.getBoundingClientRect()
-    ref.current.style.setProperty('--mx', `${e.clientX - r.left}px`)
-    ref.current.style.setProperty('--my', `${e.clientY - r.top}px`)
+function SpotlightCard({
+  children,
+  className = '',
+  style,
+  tiltIntensity = 10,
+}: {
+  children: React.ReactNode
+  className?: string
+  style?: React.CSSProperties
+  tiltIntensity?: number
+}) {
+  const ref    = useRef<HTMLDivElement>(null)
+  const glRef  = useRef<HTMLDivElement>(null)
+  const rafRef = useRef<number>(0)
+
+  function onMove(e: React.MouseEvent) {
+    cancelAnimationFrame(rafRef.current)
+    rafRef.current = requestAnimationFrame(() => {
+      const el = ref.current
+      if (!el) return
+      const r  = el.getBoundingClientRect()
+      const x  = e.clientX - r.left
+      const y  = e.clientY - r.top
+      const cx = r.width  / 2
+      const cy = r.height / 2
+
+      // Spotlight
+      el.style.setProperty('--mx', `${x}px`)
+      el.style.setProperty('--my', `${y}px`)
+
+      // 3D tilt
+      const rx = ((y - cy) / cy) * -tiltIntensity
+      const ry = ((x - cx) / cx) *  tiltIntensity
+      el.style.transform    = `perspective(900px) rotateX(${rx}deg) rotateY(${ry}deg) scale3d(1.04,1.04,1.04)`
+      el.style.borderColor  = 'rgba(139,92,246,0.35)'
+      el.style.boxShadow    = `${-ry * 2}px ${rx * 2}px 60px rgba(0,0,0,0.55), 0 0 40px rgba(139,92,246,0.12)`
+
+      // Glare
+      if (glRef.current) {
+        const angle = Math.atan2(y - cy, x - cx) * (180 / Math.PI) + 90
+        const dist  = Math.min(Math.sqrt((x - cx) ** 2 + (y - cy) ** 2) / Math.max(cx, cy), 1)
+        glRef.current.style.transform = `rotate(${angle}deg)`
+        glRef.current.style.opacity   = String(dist * 0.18)
+      }
+    })
   }
+
+  function onEnter() {
+    if (ref.current) ref.current.style.transition = 'transform 0.1s linear, box-shadow 0.1s linear, border-color 0.2s ease'
+  }
+
+  function onLeave() {
+    cancelAnimationFrame(rafRef.current)
+    const el = ref.current
+    if (el) {
+      el.style.transition  = 'transform 0.65s cubic-bezier(0.22,1,0.36,1), box-shadow 0.65s ease, border-color 0.4s ease'
+      el.style.transform   = 'perspective(900px) rotateX(0deg) rotateY(0deg) scale3d(1,1,1)'
+      el.style.boxShadow   = ''
+      el.style.borderColor = ''
+    }
+    if (glRef.current) glRef.current.style.opacity = '0'
+  }
+
   return (
-    <div ref={ref} onMouseMove={handleMove} className={`spotlight ${className}`}>
+    <div
+      ref={ref}
+      onMouseMove={onMove}
+      onMouseEnter={onEnter}
+      onMouseLeave={onLeave}
+      className={`spotlight preserve-3d ${className}`}
+      style={{ willChange: 'transform', ...style }}
+    >
       {children}
+      {/* Glare */}
+      <div
+        ref={glRef}
+        aria-hidden
+        style={{
+          position: 'absolute', inset: 0, borderRadius: 'inherit',
+          overflow: 'hidden', opacity: 0, pointerEvents: 'none', zIndex: 10,
+          transition: 'opacity 0.15s ease',
+        }}
+      >
+        <div style={{
+          position: 'absolute', top: '-80%', left: '-80%',
+          width: '260%', height: '260%', transformOrigin: '50% 50%',
+          background: 'linear-gradient(0deg, transparent 25%, rgba(255,255,255,0.1) 55%, transparent 80%)',
+        }} />
+      </div>
     </div>
   )
 }
@@ -89,74 +167,109 @@ function SpotlightCard({ children, className = '' }: { children: React.ReactNode
 /* ─── Hero Mockup ───────────────────────────────────────── */
 
 function HeroMockup() {
+  const ref    = useRef<HTMLDivElement>(null)
+  const rafRef = useRef<number>(0)
+
+  function onMove(e: React.MouseEvent) {
+    cancelAnimationFrame(rafRef.current)
+    rafRef.current = requestAnimationFrame(() => {
+      const el = ref.current
+      if (!el) return
+      const r  = el.getBoundingClientRect()
+      const x  = (e.clientX - r.left - r.width  / 2) / (r.width  / 2)
+      const y  = (e.clientY - r.top  - r.height / 2) / (r.height / 2)
+      el.style.transform   = `perspective(1200px) rotateX(${y * -6}deg) rotateY(${x * 6}deg) scale3d(1.02,1.02,1.02)`
+      el.style.transition  = 'transform 0.12s linear'
+    })
+  }
+  function onLeave() {
+    cancelAnimationFrame(rafRef.current)
+    if (ref.current) {
+      ref.current.style.transition = 'transform 0.7s cubic-bezier(0.22,1,0.36,1)'
+      ref.current.style.transform  = 'perspective(1200px) rotateX(4deg) rotateY(-2deg) translateY(0)'
+    }
+  }
+
   return (
     <div className="relative mx-auto w-full max-w-lg" style={{ perspective: '1400px' }}>
       {/* Halo glow */}
       <div className="absolute -inset-12 rounded-full pointer-events-none"
         style={{ background: 'radial-gradient(ellipse, rgba(124,58,237,0.35) 0%, rgba(6,182,212,0.15) 40%, transparent 70%)', filter: 'blur(50px)', animation: 'halo-pulse 6s ease-in-out infinite' }} />
 
-      <div className="float-card-c relative rounded-2xl overflow-hidden border border-white/10 shadow-2xl"
-        style={{ boxShadow: '0 32px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(139,92,246,0.2), inset 0 1px 0 rgba(255,255,255,0.06)' }}>
-        {/* Browser bar */}
-        <div className="flex items-center gap-2 px-4 py-3 bg-white/5 border-b border-white/8">
-          <span className="h-3 w-3 rounded-full bg-rose-500/70" />
-          <span className="h-3 w-3 rounded-full bg-amber-500/70" />
-          <span className="h-3 w-3 rounded-full bg-emerald-500/70" />
-          <div className="flex-1 mx-4 rounded-full bg-white/5 border border-white/8 px-3 py-1 text-[10px] text-slate-500 text-center">
-            glanceflow.app/dashboard
-          </div>
-        </div>
-
-        {/* Fake dashboard */}
-        <div className="bg-[#06060f] p-5 space-y-4">
-          {/* Header row */}
-          <div className="flex items-center justify-between">
-            <div className="space-y-1">
-              <div className="h-4 w-28 rounded-lg skeleton" />
-              <div className="h-2.5 w-40 rounded skeleton" />
+      <div
+        ref={ref}
+        onMouseMove={onMove}
+        onMouseLeave={onLeave}
+        className="preserve-3d relative rounded-2xl overflow-visible"
+        style={{
+          transform: 'perspective(1200px) rotateX(4deg) rotateY(-2deg)',
+          animation: 'panel-bob 5.5s ease-in-out infinite',
+          boxShadow: '24px 32px 80px rgba(0,0,0,0.65), 0 0 0 1px rgba(139,92,246,0.2), inset 0 1px 0 rgba(255,255,255,0.06)',
+        }}
+      >
+        {/* Browser chrome */}
+        <div className="rounded-2xl overflow-hidden border border-white/10">
+          <div className="flex items-center gap-2 px-4 py-3 bg-white/5 border-b border-white/8">
+            <span className="h-3 w-3 rounded-full bg-rose-500/70" />
+            <span className="h-3 w-3 rounded-full bg-amber-500/70" />
+            <span className="h-3 w-3 rounded-full bg-emerald-500/70" />
+            <div className="flex-1 mx-4 rounded-full bg-white/5 border border-white/8 px-3 py-1 text-[10px] text-slate-500 text-center">
+              glanceflow.app/dashboard
             </div>
-            <div className="h-7 w-20 rounded-xl skeleton" />
           </div>
-          {/* Stats mini */}
-          <div className="grid grid-cols-3 gap-2.5">
-            {[['12', 'Total', 'text-violet-400'], ['5', 'Pending', 'text-amber-400'], ['7', 'Done', 'text-emerald-400']].map(([v, l, c]) => (
-              <div key={l} className="glass rounded-xl p-3 text-center border border-white/5">
-                <p className={`text-lg font-extrabold ${c}`}>{v}</p>
-                <p className="text-[9px] text-slate-500 mt-0.5">{l}</p>
+
+          {/* Fake dashboard */}
+          <div className="bg-[#06060f] p-5 space-y-4">
+            {/* Header row */}
+            <div className="flex items-center justify-between">
+              <div className="space-y-1">
+                <div className="h-4 w-28 rounded-lg skeleton" />
+                <div className="h-2.5 w-40 rounded skeleton" />
               </div>
-            ))}
-          </div>
-          {/* Task cards */}
-          <div className="space-y-2">
-            {[
-              { label: '◆ Task',     color: 'text-violet-400 bg-violet-500/10', title: 'Review Q1 report slides',  tag: '🔴 Urgent',  bar: 'bg-violet-500' },
-              { label: '◆ Event',    color: 'text-cyan-400 bg-cyan-500/10',     title: 'Team standup at 10:00',    tag: '📅 Today',   bar: 'bg-cyan-500' },
-              { label: '◆ Reminder', color: 'text-pink-400 bg-pink-500/10',     title: 'Send invoice to client',   tag: '🔁 Weekly',  bar: 'bg-pink-500' },
-            ].map((t) => (
-              <div key={t.title} className="rounded-xl overflow-hidden border border-white/5"
-                style={{ background: 'rgba(255,255,255,0.03)' }}>
-                {/* left accent bar */}
-                <div className="flex">
-                  <div className={`w-1 shrink-0 ${t.bar}`} />
-                  <div className="flex-1">
-                    <div className={`px-3 py-1.5 flex items-center justify-between text-[10px] font-bold ${t.color}`}>
-                      <span>{t.label}</span>
-                      <span className="opacity-60">{t.tag}</span>
+              <div className="h-7 w-20 rounded-xl skeleton" />
+            </div>
+
+            {/* Stats mini — floats closer to viewer */}
+            <div className="grid grid-cols-3 gap-2.5 depth-sm">
+              {[['12', 'Total', 'text-violet-400'], ['5', 'Pending', 'text-amber-400'], ['7', 'Done', 'text-emerald-400']].map(([v, l, c]) => (
+                <div key={l} className="glass rounded-xl p-3 text-center border border-white/5" style={{ boxShadow: '0 4px 20px rgba(0,0,0,0.4)' }}>
+                  <p className={`text-lg font-extrabold ${c}`}>{v}</p>
+                  <p className="text-[9px] text-slate-500 mt-0.5">{l}</p>
+                </div>
+              ))}
+            </div>
+
+            {/* Task cards — deeper depth */}
+            <div className="space-y-2 depth-md">
+              {[
+                { label: '◆ Task',     color: 'text-violet-400 bg-violet-500/10', title: 'Review Q1 report slides',  tag: '🔴 Urgent',  bar: 'bg-violet-500' },
+                { label: '◆ Event',    color: 'text-cyan-400 bg-cyan-500/10',     title: 'Team standup at 10:00',    tag: '📅 Today',   bar: 'bg-cyan-500' },
+                { label: '◆ Reminder', color: 'text-pink-400 bg-pink-500/10',     title: 'Send invoice to client',   tag: '🔁 Weekly',  bar: 'bg-pink-500' },
+              ].map((t) => (
+                <div key={t.title} className="rounded-xl overflow-hidden border border-white/5 foil-border"
+                  style={{ background: 'rgba(255,255,255,0.03)' }}>
+                  <div className="flex">
+                    <div className={`w-1 shrink-0 ${t.bar}`} />
+                    <div className="flex-1">
+                      <div className={`px-3 py-1.5 flex items-center justify-between text-[10px] font-bold ${t.color}`}>
+                        <span>{t.label}</span>
+                        <span className="opacity-60">{t.tag}</span>
+                      </div>
+                      <div className="px-3 py-2 text-[11px] text-slate-300 font-medium">{t.title}</div>
                     </div>
-                    <div className="px-3 py-2 text-[11px] text-slate-300 font-medium">{t.title}</div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Floating chips */}
-      <div className="absolute -top-5 -right-6 premium-badge rounded-full px-3 py-1.5 text-[10px] font-bold text-violet-300 chip-float" style={{ '--r': '4deg' } as React.CSSProperties}>
+      {/* Floating chips — outside the 3D scene so they float freely */}
+      <div className="absolute -top-5 -right-6 premium-badge rounded-full px-3 py-1.5 text-[10px] font-bold text-violet-300 chip-float" style={{ '--r': '4deg', zIndex: 20 } as React.CSSProperties}>
         ⚡ AI powered
       </div>
-      <div className="absolute -bottom-4 -left-5 premium-badge rounded-full px-3 py-1.5 text-[10px] font-bold text-cyan-300 chip-float" style={{ '--r': '-5deg', animationDelay: '1.3s' } as React.CSSProperties}>
+      <div className="absolute -bottom-4 -left-5 premium-badge rounded-full px-3 py-1.5 text-[10px] font-bold text-cyan-300 chip-float" style={{ '--r': '-5deg', animationDelay: '1.3s', zIndex: 20 } as React.CSSProperties}>
         ✓ 3s extraction
       </div>
     </div>
@@ -292,10 +405,12 @@ export default function HomePage() {
         <div className="max-w-4xl mx-auto grid grid-cols-3 gap-4 sm:gap-8">
           {stats.map((s, i) => (
             <ScrollReveal key={s.label} delay={i * 120} direction="scale">
-              <SpotlightCard className={`glass shine-card inner-highlight rounded-2xl py-10 px-4 text-center space-y-3 h-full border border-white/6 ${i === 0 ? 'float-card-l' : i === 1 ? 'float-card-c' : 'float-card-r'}`}
-                style={{ animationDelay: `${i * 0.5}s` } as React.CSSProperties}>
-                <div className="text-3xl">{s.icon}</div>
-                <p className="text-4xl sm:text-5xl font-black gradient-text tabular-nums stat-number">
+              <SpotlightCard
+                className={`glass holographic shine-card inner-highlight rounded-2xl py-10 px-4 text-center space-y-3 h-full border border-white/6`}
+                style={{ animationDelay: `${i * 0.5}s` } as React.CSSProperties}
+              >
+                <div className="text-3xl depth-sm">{s.icon}</div>
+                <p className="text-4xl sm:text-5xl font-black gradient-text tabular-nums stat-number depth-md">
                   <CountUp end={s.value} />
                 </p>
                 <p className="text-xs sm:text-sm font-medium text-slate-400">{s.label}</p>
@@ -325,19 +440,21 @@ export default function HomePage() {
 
             {features.map((f, i) => (
               <ScrollReveal key={f.title} delay={i * 150} direction="up">
-                <SpotlightCard className={`relative glass shine-card inner-highlight rounded-3xl p-8 space-y-5 border border-white/5 h-full`}>
+                <SpotlightCard className={`relative glass holographic shine-card inner-highlight rounded-3xl p-8 space-y-5 border border-white/5 h-full`}>
                   {/* Step number */}
-                  <div className="absolute top-5 right-5 w-6 h-6 rounded-full border border-white/10 flex items-center justify-center text-[10px] font-black text-slate-500">
+                  <div className="absolute top-5 right-5 w-6 h-6 rounded-full border border-white/10 flex items-center justify-center text-[10px] font-black text-slate-500 depth-xs">
                     {i + 1}
                   </div>
 
-                  {/* Icon with glow */}
-                  <div className="relative w-14 h-14 rounded-2xl flex items-center justify-center text-3xl"
-                    style={{ background: `linear-gradient(135deg, ${f.accent}, transparent)`, boxShadow: `0 0 24px ${f.glow}40` }}>
+                  {/* Icon with glow — pops forward */}
+                  <div
+                    className="relative w-14 h-14 rounded-2xl flex items-center justify-center text-3xl icon-3d depth-md"
+                    style={{ background: `linear-gradient(135deg, ${f.accent}, transparent)`, boxShadow: `0 0 24px ${f.glow}40` }}
+                  >
                     <span className="icon-glow" style={{ animationDelay: `${i * 0.8}s`, '--glow': f.glow } as React.CSSProperties}>{f.icon}</span>
                   </div>
 
-                  <div className="space-y-2">
+                  <div className="space-y-2 depth-xs">
                     <h3 className="font-black text-white text-lg">{f.title}</h3>
                     <p className="text-sm text-slate-400 leading-relaxed">{f.desc}</p>
                   </div>
@@ -381,9 +498,9 @@ export default function HomePage() {
           <div className="grid sm:grid-cols-3 gap-6">
             {testimonials.map((t, i) => (
               <ScrollReveal key={t.name} delay={i * 140} direction="up">
-                <SpotlightCard className={`glass shine-card inner-highlight rounded-3xl p-7 space-y-5 border border-white/5 h-full ${i === 0 ? 'tilt-left' : i === 1 ? 'tilt-center' : 'tilt-right'}`}>
+                <SpotlightCard className={`glass holographic shine-card inner-highlight rounded-3xl p-7 space-y-5 border border-white/5 h-full`}>
                   {/* Stars */}
-                  <div className="flex gap-0.5">
+                  <div className="flex gap-0.5 depth-sm">
                     {[...Array(5)].map((_, j) => (
                       <svg key={j} className="h-4 w-4 text-amber-400" fill="currentColor" viewBox="0 0 20 20">
                         <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
@@ -394,7 +511,7 @@ export default function HomePage() {
                   <p className="text-sm text-slate-300 leading-relaxed">&ldquo;{t.text}&rdquo;</p>
 
                   <div className="flex items-center gap-3 pt-1 border-t border-white/5">
-                    <div className={`h-10 w-10 rounded-full bg-gradient-to-br ${t.color} flex items-center justify-center text-white font-black text-sm shrink-0 shadow-lg`}>
+                    <div className={`h-10 w-10 rounded-full bg-gradient-to-br ${t.color} flex items-center justify-center text-white font-black text-sm shrink-0 shadow-lg depth-md`}>
                       {t.avatar}
                     </div>
                     <div>

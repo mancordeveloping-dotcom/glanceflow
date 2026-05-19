@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabaseBrowser } from '@/lib/supabase-browser'
 import { useToast } from '@/components/Toast'
+import Tilt3D from '@/components/Tilt3D'
 
 const EVENTS = [
   { event: 'task.created',   desc: 'Triggered when a new task is created',          icon: '➕' },
@@ -178,13 +179,13 @@ export default function IntegrationsPage() {
 
         <div className="grid sm:grid-cols-3 gap-3">
           {ZAPIER_APPS.map(app => (
-            <div key={app.name} className="glass rounded-2xl border border-white/5 p-4 flex items-center gap-3 hover:border-white/10 transition-colors">
-              <span className="text-2xl shrink-0">{app.icon}</span>
+            <Tilt3D key={app.name} intensity={10} className="glass holographic rounded-2xl border border-white/5 p-4 flex items-center gap-3 hover:border-white/10 transition-colors">
+              <span className="text-2xl shrink-0 depth-md">{app.icon}</span>
               <div className="min-w-0">
                 <p className="text-sm font-bold text-white">{app.name}</p>
                 <p className="text-[10px] text-slate-500 mt-0.5 leading-tight">{app.desc}</p>
               </div>
-            </div>
+            </Tilt3D>
           ))}
         </div>
 
