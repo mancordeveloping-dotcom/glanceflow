@@ -71,7 +71,7 @@ const trust = [
 
 /* ─── Spotlight card ────────────────────────────────────── */
 
-function SpotlightCard({ children, className = '' }: { children: React.ReactNode; className?: string }) {
+function SpotlightCard({ children, className = '', style }: { children: React.ReactNode; className?: string; style?: React.CSSProperties }) {
   const ref = useRef<HTMLDivElement>(null)
   const handleMove = (e: React.MouseEvent) => {
     if (!ref.current) return
@@ -80,7 +80,7 @@ function SpotlightCard({ children, className = '' }: { children: React.ReactNode
     ref.current.style.setProperty('--my', `${e.clientY - r.top}px`)
   }
   return (
-    <div ref={ref} onMouseMove={handleMove} className={`spotlight ${className}`}>
+    <div ref={ref} onMouseMove={handleMove} className={`spotlight ${className}`} style={style}>
       {children}
     </div>
   )

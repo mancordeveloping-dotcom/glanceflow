@@ -21,11 +21,12 @@ body {
 .logo { display: flex; align-items: center; gap: 8px; }
 
 .logo-icon {
-  width: 26px; height: 26px;
-  border-radius: 8px;
-  background: linear-gradient(135deg, #7c3aed, #06b6d4);
+  width: 30px; height: 30px;
+  border-radius: 9px;
+  background: linear-gradient(135deg, #6d28d9 0%, #0891b2 100%);
   display: flex; align-items: center; justify-content: center;
-  font-weight: 900; font-size: 13px; color: white;
+  font-weight: 900; font-size: 11px; letter-spacing: -0.5px;
+  color: #fff;
 }
 
 .logo-text { font-weight: 800; font-size: 15px; background: linear-gradient(135deg, #a78bfa, #38bdf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }

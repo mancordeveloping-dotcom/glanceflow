@@ -37,12 +37,14 @@ export default function OGImage() {
         {/* Logo + name */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 32 }}>
           <div style={{
-            width: 64, height: 64, borderRadius: 16,
-            background: 'linear-gradient(135deg, #7c3aed, #06b6d4)',
+            width: 72, height: 72, borderRadius: 18,
+            background: 'linear-gradient(135deg, #6d28d9 0%, #0891b2 100%)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: 32,
+            fontSize: 26, fontWeight: 900, letterSpacing: '-1px',
+            fontFamily: 'system-ui, sans-serif',
+            color: '#ffffff',
           }}>
-            ⚡
+            GF
           </div>
           <span style={{
             fontSize: 48, fontWeight: 900,

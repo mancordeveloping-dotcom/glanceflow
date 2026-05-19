@@ -5,8 +5,8 @@ import { stripe } from '@/lib/stripe'
 import { rateLimit, getIP, PRESETS } from '@/lib/rate-limit'
 
 const PLANS = {
-  monthly: { amount: 699, interval: 'month' as const },
-  yearly:  { amount: 4999, interval: 'year' as const },
+  monthly: { amount: 699,  interval: 'month' as const, name: 'GlanceFlow Premium' },
+  pro:     { amount: 2000, interval: 'month' as const, name: 'GlanceFlow Pro'     },
 }
 
 export async function POST(req: NextRequest) {
@@ -44,10 +44,13 @@ export async function POST(req: NextRequest) {
   const session = await stripe.checkout.sessions.create({
     customer: customerId,
     mode: 'subscription',
+    subscription_data: {
+      metadata: { plan },   // 'monthly' | 'pro' — read by webhook
+    },
     line_items: [{
       price_data: {
         currency: 'eur',
-        product_data: { name: 'GlanceFlow Premium' },
+        product_data: { name: price.name },
         unit_amount: price.amount,
         recurring: { interval: price.interval },
       },

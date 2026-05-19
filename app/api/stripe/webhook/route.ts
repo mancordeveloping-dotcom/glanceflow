@@ -32,12 +32,12 @@ export async function POST(req: NextRequest) {
       subscription_status: isPremium ? 'premium' : 'free',
     }
 
-    // For subscription events, extract the billing interval
+    // Detect plan tier from subscription metadata (set at checkout)
     if (event.type !== 'checkout.session.completed') {
-      const items = obj.items as { data: Array<{ plan?: { interval?: string } }> } | undefined
-      const interval = items?.data?.[0]?.plan?.interval
-      if (interval === 'year') updates.subscription_interval = 'yearly'
-      else if (interval === 'month') updates.subscription_interval = 'monthly'
+      const meta = obj.metadata as Record<string, string> | undefined
+      const plan = meta?.plan  // 'monthly' | 'pro'
+      if (plan === 'pro') updates.subscription_interval = 'pro'
+      else updates.subscription_interval = 'monthly'
     }
 
     await supabaseAdmin

@@ -29,12 +29,12 @@ export async function GET(req: NextRequest) {
   ])
 
   const isPremium = profile?.subscription_status === 'premium'
-  const isAnnual = isPremium && profile?.subscription_interval === 'yearly'
+  const isPro = isPremium && profile?.subscription_interval === 'pro'
   return NextResponse.json({
     used: count ?? 0,
     limit: FREE_LIMIT,
     isPremium,
-    isAnnual,
+    isPro,
     remaining: isPremium ? null : Math.max(0, FREE_LIMIT - (count ?? 0)),
   })
 }
