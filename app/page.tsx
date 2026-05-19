@@ -317,11 +317,6 @@ export default function HomePage() {
           </ScrollReveal>
 
           <div className="grid sm:grid-cols-3 gap-6 relative">
-            {/* Connecting line */}
-            <div className="hidden sm:block absolute top-12 left-[16.66%] right-[16.66%] h-px"
-              style={{ background: 'linear-gradient(90deg, rgba(139,92,246,0.6), rgba(6,182,212,0.6))', filter: 'blur(0.5px)' }} />
-            <div className="hidden sm:block absolute top-[46px] left-[16.66%] right-[16.66%] h-px"
-              style={{ background: 'linear-gradient(90deg, rgba(139,92,246,0.2), rgba(6,182,212,0.2))', filter: 'blur(4px)' }} />
 
             {features.map((f, i) => (
               <ScrollReveal key={f.title} delay={i * 150} direction="up">
