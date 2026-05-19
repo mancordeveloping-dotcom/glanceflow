@@ -88,7 +88,7 @@ export default function RootLayout({
           <main className="flex-1">
             <div className="mx-auto max-w-5xl px-4 py-10 pb-28 md:pb-10"><PageTransition>{children}</PageTransition></div>
           </main>
-          <footer className="border-t border-white/5 mt-20">
+          <footer className="border-t border-white/5 mt-20 pb-20 md:pb-0">
             {/* Gradient separator */}
             <div className="h-px w-full" style={{ background: 'linear-gradient(90deg, transparent, rgba(139,92,246,0.5), rgba(6,182,212,0.3), transparent)' }} />
             <div className="mx-auto max-w-5xl px-4 py-10">

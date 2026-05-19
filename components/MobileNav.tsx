@@ -17,6 +17,9 @@ export default function MobileNav() {
     return () => subscription.unsubscribe()
   }, [])
 
+  // Hide on login page — no nav needed there
+  if (pathname === '/login') return null
+
   const isActive = (href: string) => pathname === href
 
   return (
