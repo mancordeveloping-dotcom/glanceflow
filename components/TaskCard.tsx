@@ -212,9 +212,12 @@ export default function TaskCard({ task, projects = [], onToggle, onDelete, onEd
 
   /* ── Card view ── */
   const pCfg = task.priority ? priorityConfig[task.priority] : null
+  const todayStr = new Date().toISOString().split('T')[0]
+  const isOverdue = !isDone && task.date && task.date < todayStr
 
   return (
-    <div className={`glass rounded-2xl border overflow-hidden card-lift transition-all ${isDone ? 'opacity-55' : ''} ${selected ? 'border-violet-500/60 ring-2 ring-violet-500/20' : 'border-white/5'}`}>
+    <div className={`glass rounded-2xl border overflow-hidden card-lift transition-all ${isDone ? 'opacity-55' : ''} ${selected ? 'border-violet-500/60 ring-2 ring-violet-500/20' : isOverdue ? 'border-red-500/40' : 'border-white/5'}`}
+      style={isOverdue ? { boxShadow: '0 0 0 1px rgba(239,68,68,0.15), 0 4px 24px rgba(0,0,0,0.3)' } : undefined}>
       {/* Type bar */}
       <div className={`px-4 py-2 flex items-center justify-between ${typeColors[task.type]}`}>
         <div className="flex items-center gap-2">
@@ -231,6 +234,12 @@ export default function TaskCard({ task, projects = [], onToggle, onDelete, onEd
             </button>
           )}
           <span className="text-xs font-bold tracking-wide">{typeLabel[task.type]}</span>
+          {isOverdue && (
+            <span className="flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold text-red-400 bg-red-500/15">
+              <span className="h-1.5 w-1.5 rounded-full bg-red-400 animate-pulse" />
+              Overdue
+            </span>
+          )}
           {pCfg && (
             <span className={`flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold ${pCfg.color}`}>
               <span className={`h-1.5 w-1.5 rounded-full ${pCfg.dot}`} />

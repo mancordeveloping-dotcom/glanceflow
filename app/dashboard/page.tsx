@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { supabaseBrowser } from '@/lib/supabase-browser'
@@ -15,6 +15,8 @@ import TemplateModal from '@/components/TemplateModal'
 import PWAInstallBanner from '@/components/PWAInstallBanner'
 import CalendarView from '@/components/CalendarView'
 import AIChat from '@/components/AIChat'
+import QuickAdd from '@/components/QuickAdd'
+import KeyboardShortcuts from '@/components/KeyboardShortcuts'
 import type { Task, Project, ParsedTask } from '@/types'
 
 type SortBy = 'priority' | 'date_asc' | 'date_desc' | 'created' | 'title'
@@ -86,6 +88,8 @@ export default function DashboardPage() {
   const [sortBy, setSortBy] = useState<SortBy>('priority')
   const [viewMode, setViewMode] = useState<ViewMode>('list')
   const [selectedIds, setSelectedIds] = useState<string[]>([])
+  const [quickAddOpen, setQuickAddOpen] = useState(false)
+  const searchRef = useRef<HTMLInputElement>(null)
   const { toast } = useToast()
   const router = useRouter()
 
@@ -227,8 +231,10 @@ export default function DashboardPage() {
     }
   }
 
+  const todayStr = new Date().toISOString().split('T')[0]
   const pendingCount = tasks.filter((t) => t.status === 'pending').length
   const doneCount = tasks.filter((t) => t.status === 'done').length
+  const overdueCount = tasks.filter(t => t.status === 'pending' && t.date && t.date < todayStr).length
 
   const filtered = tasks
     .filter((t) => {
@@ -376,9 +382,10 @@ export default function DashboardPage() {
               <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
             </svg>
             <input
+              ref={searchRef}
               value={search}
               onChange={e => setSearch(e.target.value)}
-              placeholder="Search tasks…"
+              placeholder="Search tasks… (/)"
               className="w-56 rounded-xl border border-white/10 bg-white/5 pl-9 pr-3 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:w-72 transition-all"
             />
             {search && (
@@ -432,6 +439,22 @@ export default function DashboardPage() {
       )}
 
       {!loading && tasks.length > 0 && <GamificationWidget />}
+
+      {/* Overdue banner */}
+      {!loading && overdueCount > 0 && (
+        <div className="rounded-2xl border border-red-500/25 bg-red-500/8 px-5 py-3 flex items-center justify-between gap-4">
+          <p className="text-sm text-red-300 flex items-center gap-2">
+            <span className="h-2 w-2 rounded-full bg-red-400 animate-pulse shrink-0" />
+            <span><span className="font-bold">{overdueCount} task{overdueCount > 1 ? 's' : ''} overdue</span> — complete them to keep your streak!</span>
+          </p>
+          <button
+            onClick={() => { setStatusFilter('pending'); setSortBy('date_asc') }}
+            className="shrink-0 text-xs font-bold text-red-400 hover:text-red-300 transition-colors"
+          >
+            Show →
+          </button>
+        </div>
+      )}
 
       {!loading && dueTodayTasks.length > 0 && (
         <div className="rounded-2xl border border-violet-500/20 bg-violet-500/5 px-5 py-4 space-y-3">
@@ -634,6 +657,23 @@ export default function DashboardPage() {
 
       {/* AI Chat — floating */}
       <AIChat tasks={tasks} />
+
+      {/* Quick Add — floating + button bottom-left */}
+      <QuickAdd
+        open={quickAddOpen}
+        onClose={() => setQuickAddOpen(false)}
+        onAdded={(task) => {
+          setTasks([task, ...tasks])
+          toast('Task aggiunto!', 'success')
+        }}
+      />
+
+      {/* Keyboard shortcuts */}
+      <KeyboardShortcuts
+        onQuickAdd={() => setQuickAddOpen(true)}
+        onToggleCalendar={() => setViewMode(v => v === 'calendar' ? 'list' : 'calendar')}
+        onFocusSearch={() => searchRef.current?.focus()}
+      />
     </div>
   )
 }

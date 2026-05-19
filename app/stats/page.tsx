@@ -101,10 +101,13 @@ function BarChart({ bars }: { bars: { label: string; value: number; color?: stri
   )
 }
 
+interface GamifData { streak_days: number; total_done: number; badges: string[] }
+
 export default function StatsPage() {
-  const [tasks, setTasks] = useState<Task[]>([])
+  const [tasks, setTasks]       = useState<Task[]>([])
   const [expenses, setExpenses] = useState<Expense[]>([])
-  const [loading, setLoading] = useState(true)
+  const [gamif, setGamif]       = useState<GamifData | null>(null)
+  const [loading, setLoading]   = useState(true)
   const router = useRouter()
 
   useEffect(() => {
@@ -113,9 +116,12 @@ export default function StatsPage() {
       Promise.all([
         fetch('/api/tasks').then(r => r.json()),
         fetch('/api/expenses').then(r => r.json()),
-      ]).then(([t, e]: [Task[], Expense[]]) => {
-        if (Array.isArray(t)) setTasks(t)
+        fetch('/api/gamification').then(r => r.json()),
+      ]).then(([t, e, g]) => {
+        const tasksArr = t?.tasks ?? (Array.isArray(t) ? t : [])
+        setTasks(tasksArr)
         if (Array.isArray(e)) setExpenses(e)
+        if (g && !g.error) setGamif(g as GamifData)
       }).finally(() => setLoading(false))
     })
   }, [router])
@@ -151,6 +157,15 @@ export default function StatsPage() {
 
   const totalSpent = expenses.reduce((s, e) => s + Number(e.amount), 0)
   const completionRate = tasks.length > 0 ? Math.round((tasks.filter(t => t.status === 'done').length / tasks.length) * 100) : 0
+  const todayStr = new Date().toISOString().split('T')[0]
+  const overdueCount = tasks.filter(t => t.status === 'pending' && t.date && t.date < todayStr).length
+
+  const prioritySegments = [
+    { value: tasks.filter(t => t.priority === 'urgent').length, color: '#ef4444', label: 'Urgent' },
+    { value: tasks.filter(t => t.priority === 'high').length,   color: '#f97316', label: 'High' },
+    { value: tasks.filter(t => t.priority === 'medium').length, color: '#eab308', label: 'Medium' },
+    { value: tasks.filter(t => t.priority === 'low').length,    color: '#64748b', label: 'Low' },
+  ].filter(s => s.value > 0)
 
   if (loading) {
     return (
@@ -170,15 +185,49 @@ export default function StatsPage() {
         <p className="mt-1 text-sm text-slate-400">Your productivity at a glance</p>
       </div>
 
+      {/* Gamification strip */}
+      {gamif && (
+        <div className="glass rounded-2xl border border-violet-500/15 px-6 py-4 flex items-center gap-6 flex-wrap">
+          <div className="flex items-center gap-3">
+            <span className="text-2xl">🔥</span>
+            <div>
+              <p className="text-2xl font-black text-white">{gamif.streak_days}</p>
+              <p className="text-xs text-slate-500">Day streak</p>
+            </div>
+          </div>
+          <div className="h-10 w-px bg-white/8 hidden sm:block" />
+          <div className="flex items-center gap-3">
+            <span className="text-2xl">✅</span>
+            <div>
+              <p className="text-2xl font-black text-emerald-400">{gamif.total_done}</p>
+              <p className="text-xs text-slate-500">All-time done</p>
+            </div>
+          </div>
+          {gamif.badges.length > 0 && (
+            <>
+              <div className="h-10 w-px bg-white/8 hidden sm:block" />
+              <div className="flex items-center gap-2 flex-wrap">
+                {gamif.badges.map(b => (
+                  <span key={b} className="rounded-full bg-violet-500/15 border border-violet-500/25 px-3 py-1 text-xs font-bold text-violet-300">
+                    {b === 'first_task' ? '⭐ First Task' : b === 'tasks_10' ? '🏆 10 Tasks' : b === 'tasks_50' ? '💎 50 Tasks' : b === 'streak_3' ? '🔥 3-Day Streak' : b === 'streak_7' ? '⚡ 7-Day Streak' : b}
+                  </span>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
+      )}
+
       {/* KPI cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         {[
-          { label: 'Total tasks', value: tasks.length, color: 'text-white' },
-          { label: 'Completed', value: tasks.filter(t => t.status === 'done').length, color: 'text-emerald-400' },
-          { label: 'Completion rate', value: `${completionRate}%`, color: 'text-violet-400' },
-          { label: 'Total spent', value: `€${totalSpent.toFixed(0)}`, color: 'text-cyan-400' },
+          { label: 'Total tasks',      value: tasks.length,                                     color: 'text-white',        icon: '🗂' },
+          { label: 'Completed',        value: tasks.filter(t => t.status === 'done').length,    color: 'text-emerald-400',  icon: '✅' },
+          { label: 'Completion rate',  value: `${completionRate}%`,                             color: 'text-violet-400',   icon: '📈' },
+          { label: 'Overdue',          value: overdueCount,                                     color: overdueCount > 0 ? 'text-red-400' : 'text-slate-400', icon: '⚠️' },
         ].map((k, i) => (
           <div key={i} className="glass inner-highlight rounded-2xl p-5 text-center space-y-1 border border-white/5">
+            <div className="text-xl mb-1">{k.icon}</div>
             <p className={`text-3xl font-extrabold ${k.color}`}>{k.value}</p>
             <p className="text-xs text-slate-500">{k.label}</p>
           </div>
@@ -198,14 +247,18 @@ export default function StatsPage() {
       </div>
 
       {/* Donut charts */}
-      <div className="grid sm:grid-cols-2 gap-6">
+      <div className="grid sm:grid-cols-3 gap-6">
         <div className="glass inner-highlight rounded-2xl p-6 border border-white/5 space-y-4">
-          <p className="font-bold text-white">Tasks by type</p>
+          <p className="font-bold text-white text-sm">By type</p>
           <DonutChart segments={typeSegments} />
         </div>
         <div className="glass inner-highlight rounded-2xl p-6 border border-white/5 space-y-4">
-          <p className="font-bold text-white">Tasks by status</p>
+          <p className="font-bold text-white text-sm">By status</p>
           <DonutChart segments={statusSegments} />
+        </div>
+        <div className="glass inner-highlight rounded-2xl p-6 border border-white/5 space-y-4">
+          <p className="font-bold text-white text-sm">By priority</p>
+          <DonutChart segments={prioritySegments} />
         </div>
       </div>
 
