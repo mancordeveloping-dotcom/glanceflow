@@ -19,9 +19,11 @@ export default function Header() {
   const [user, setUser] = useState<User | null>(null)
   const [usage, setUsage] = useState<UsageData | null>(null)
   const [open, setOpen] = useState(false)
+  const [mobileOpen, setMobileOpen] = useState(false)
   const [toolsOpen, setToolsOpen] = useState(false)
   const [portalLoading, setPortalLoading] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
+  const mobileDropdownRef = useRef<HTMLDivElement>(null)
   const toolsRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
   const pathname = usePathname()
@@ -57,6 +59,7 @@ export default function Header() {
   useEffect(() => {
     function handleClick(e: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) setOpen(false)
+      if (mobileDropdownRef.current && !mobileDropdownRef.current.contains(e.target as Node)) setMobileOpen(false)
       if (toolsRef.current && !toolsRef.current.contains(e.target as Node)) setToolsOpen(false)
     }
     document.addEventListener('mousedown', handleClick)
@@ -94,21 +97,6 @@ export default function Header() {
               <span className="font-black text-white">Glance</span><span className="font-light gradient-text">Flow</span>
             </span>
           </Link>
-          <button
-            onClick={toggleMode}
-            className="rounded-xl border border-white/10 bg-white/5 p-2 text-slate-400 hover:text-white hover:bg-white/10 transition-colors"
-            title={isDark ? 'Light mode' : 'Dark mode'}
-          >
-            {isDark ? (
-              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-4.773-4.227-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z" />
-              </svg>
-            ) : (
-              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M21.752 15.002A9.72 9.72 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z" />
-              </svg>
-            )}
-          </button>
         </div>
 
         {/* Desktop nav */}
@@ -151,6 +139,22 @@ export default function Header() {
             <Link href="/pricing" className={`hover:text-white transition-colors ${pathname === '/pricing' ? 'text-white' : ''}`}>Pricing</Link>
           </nav>
 
+          <button
+            onClick={toggleMode}
+            className="rounded-xl border border-white/10 bg-white/5 p-2 text-slate-400 hover:text-white hover:bg-white/10 transition-colors"
+            title={isDark ? 'Light mode' : 'Dark mode'}
+          >
+            {isDark ? (
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-4.773-4.227-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z" />
+              </svg>
+            ) : (
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M21.752 15.002A9.72 9.72 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z" />
+              </svg>
+            )}
+          </button>
+
           {user ? (
             <div className="relative" ref={dropdownRef}>
               <button
@@ -189,7 +193,7 @@ export default function Header() {
                     {!usage?.isPremium && usage && (
                       <div className="space-y-1.5">
                         <div className="flex items-center justify-between text-xs text-slate-400">
-                          <span>Screenshot oggi</span>
+                          <span>Tasks oggi</span>
                           <span className="font-bold text-white">{usage.used}/{usage.limit}</span>
                         </div>
                         <div className="h-1.5 rounded-full bg-white/5 overflow-hidden">
@@ -267,14 +271,14 @@ export default function Header() {
             )}
           </button>
           {user ? (
-            <div className="relative" ref={dropdownRef}>
+            <div className="relative" ref={mobileDropdownRef}>
               <button
-                onClick={() => setOpen((v) => !v)}
+                onClick={() => setMobileOpen((v) => !v)}
                 className="h-8 w-8 rounded-full bg-gradient-to-br from-violet-500 to-cyan-500 flex items-center justify-center text-white text-xs font-bold shadow-lg shadow-violet-500/30"
               >
                 {initials}
               </button>
-              {open && (
+              {mobileOpen && (
                 <div className="absolute right-0 mt-2 w-72 rounded-2xl shadow-2xl shadow-black/80 overflow-hidden z-50 animate-fade-up border border-white/10" style={{ background: '#111118' }}>
                   <div className="px-5 py-4 border-b border-white/8">
                     <div className="flex items-center gap-3">
@@ -307,7 +311,7 @@ export default function Header() {
                         <div className="h-1.5 rounded-full bg-white/5 overflow-hidden">
                           <div className="h-full rounded-full bg-gradient-to-r from-violet-500 to-cyan-500 transition-all" style={{ width: `${(usage.used / usage.limit) * 100}%` }} />
                         </div>
-                        <Link href="/pricing" onClick={() => setOpen(false)} className="block text-center rounded-xl bg-gradient-to-r from-violet-600 to-cyan-500 py-2 text-xs font-bold text-white hover:opacity-90 transition-opacity mt-2">
+                        <Link href="/pricing" onClick={() => setMobileOpen(false)} className="block text-center rounded-xl bg-gradient-to-r from-violet-600 to-cyan-500 py-2 text-xs font-bold text-white hover:opacity-90 transition-opacity mt-2">
                           Upgrade a Premium →
                         </Link>
                       </div>
@@ -319,7 +323,7 @@ export default function Header() {
                     )}
                   </div>
                   <div className="px-5 py-3 space-y-1">
-                    <Link href="/profile" onClick={() => setOpen(false)}
+                    <Link href="/profile" onClick={() => setMobileOpen(false)}
                       className="flex items-center gap-2 w-full rounded-xl px-3 py-2.5 text-sm font-semibold text-slate-200 hover:bg-white/8 transition-colors">
                       <svg className="h-4 w-4 text-violet-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />

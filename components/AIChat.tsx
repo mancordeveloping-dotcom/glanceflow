@@ -65,7 +65,7 @@ export default function AIChat({ tasks }: AIChatProps) {
       {/* Floating button */}
       <button
         onClick={() => setOpen(o => !o)}
-        className={`fixed bottom-6 right-44 z-50 h-14 w-14 rounded-full shadow-2xl flex items-center justify-center transition-all duration-300 ${open ? 'bg-white/10 border border-white/20 scale-90' : 'bg-gradient-to-br from-violet-600 to-cyan-500 shadow-violet-500/40 hover:scale-110'}`}
+        className={`fixed bottom-20 md:bottom-6 right-6 md:right-44 z-50 h-14 w-14 rounded-full shadow-2xl flex items-center justify-center transition-all duration-300 ${open ? 'bg-white/10 border border-white/20 scale-90' : 'bg-gradient-to-br from-violet-600 to-cyan-500 shadow-violet-500/40 hover:scale-110'}`}
         title="AI Assistant"
         style={{ boxShadow: open ? undefined : '0 8px 32px rgba(139,92,246,0.5)' }}
       >
