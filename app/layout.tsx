@@ -68,6 +68,10 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="it" className={`${geist.variable} h-full antialiased`}>
+      <head>
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-MD8RCMHSLC" />
+        <script dangerouslySetInnerHTML={{ __html: `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','G-MD8RCMHSLC');` }} />
+      </head>
       <body className="min-h-full flex flex-col text-gray-900">
         <script dangerouslySetInnerHTML={{ __html: `try{var t=localStorage.getItem('gf-theme');if(t&&t!=='violet')document.documentElement.setAttribute('data-theme',t);var m=localStorage.getItem('gf-mode')||'dark';document.documentElement.setAttribute('data-mode',m)}catch(e){}` }} />
         <Analytics />
