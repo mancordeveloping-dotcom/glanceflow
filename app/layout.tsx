@@ -9,6 +9,8 @@ import { Analytics } from '@vercel/analytics/next'
 import { LanguageProvider } from '@/context/LanguageContext'
 import OnboardingModal from '@/components/OnboardingModal'
 import PageTransition from '@/components/PageTransition'
+import MobileNav from '@/components/MobileNav'
+import PWAInstallBanner from '@/components/PWAInstallBanner'
 
 const geist = Geist({
   variable: '--font-geist-sans',
@@ -76,13 +78,15 @@ export default function RootLayout({
         <script dangerouslySetInnerHTML={{ __html: `try{var t=localStorage.getItem('gf-theme');if(t&&t!=='violet')document.documentElement.setAttribute('data-theme',t);var m=localStorage.getItem('gf-mode')||'dark';document.documentElement.setAttribute('data-mode',m)}catch(e){}` }} />
         <Analytics />
         <PWARegister />
+        <MobileNav />
+        <PWAInstallBanner />
         <BackgroundFX />
         <LanguageProvider>
         <ToastProvider>
           <OnboardingModal />
           <Header />
           <main className="flex-1">
-            <div className="mx-auto max-w-5xl px-4 py-10"><PageTransition>{children}</PageTransition></div>
+            <div className="mx-auto max-w-5xl px-4 py-10 pb-28 md:pb-10"><PageTransition>{children}</PageTransition></div>
           </main>
           <footer className="border-t border-white/5 mt-20">
             {/* Gradient separator */}
