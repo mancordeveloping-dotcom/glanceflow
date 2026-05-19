@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createSupabaseServer } from '@/lib/supabase-server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import { rateLimit, getIP, PRESETS } from '@/lib/rate-limit'
+import { fireWebhook } from '@/lib/webhook'
 import type { TaskStatus, TaskPriority, TaskRecurrence } from '@/types'
 
 export async function PATCH(
@@ -28,6 +29,7 @@ export async function PATCH(
     priority?: TaskPriority | null
     recurrence?: TaskRecurrence | null
     recurrence_paused?: boolean | null
+    subtasks?: Array<{ id: string; title: string; done: boolean }> | null
   }
 
   const updates: Record<string, unknown> = { updated_at: new Date().toISOString() }
@@ -42,6 +44,7 @@ export async function PATCH(
   if (body.priority    !== undefined) updates.priority    = body.priority
   if (body.recurrence          !== undefined) updates.recurrence          = body.recurrence
   if (body.recurrence_paused   !== undefined) updates.recurrence_paused   = body.recurrence_paused
+  if (body.subtasks            !== undefined) updates.subtasks            = body.subtasks
 
   const { data, error } = await supabase
     .from('tasks')
@@ -84,6 +87,11 @@ export async function PATCH(
     })()
   }
 
+  // Fire webhook when task completed
+  if (body.status === 'done') {
+    void fireWebhook(user.id, 'task.completed', { task: { id: data.id, title: data.title, type: data.type, priority: data.priority, date: data.date } })
+  }
+
   // Auto-create next occurrence for recurring tasks when marked done (skip if paused)
   if (body.status === 'done' && data.recurrence && data.date && !data.recurrence_paused) {
     const next = new Date(data.date + 'T00:00:00')
@@ -120,6 +128,14 @@ export async function DELETE(
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
+  // Fetch task title before deletion for webhook payload
+  const { data: taskToDelete } = await supabase
+    .from('tasks')
+    .select('id, title, type, priority')
+    .eq('id', id)
+    .eq('user_id', user.id)
+    .maybeSingle()
+
   const { error } = await supabase
     .from('tasks')
     .delete()
@@ -127,5 +143,11 @@ export async function DELETE(
     .eq('user_id', user.id)
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+
+  // Fire webhook for deleted task
+  if (taskToDelete) {
+    void fireWebhook(user.id, 'task.deleted', { task: { id: taskToDelete.id, title: taskToDelete.title, type: taskToDelete.type, priority: taskToDelete.priority } })
+  }
+
   return NextResponse.json({ success: true })
 }

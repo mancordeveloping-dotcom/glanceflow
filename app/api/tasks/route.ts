@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createSupabaseServer } from '@/lib/supabase-server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import { rateLimit, getIP, PRESETS } from '@/lib/rate-limit'
+import { fireWebhook } from '@/lib/webhook'
 import type { ParsedTask } from '@/types'
 
 const FREE_HISTORY_DAYS = 30
@@ -80,5 +81,13 @@ export async function POST(req: NextRequest) {
 
   const { data, error } = await supabaseAdmin.from('tasks').insert(rows).select()
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+
+  // Fire webhooks for each created task (non-blocking)
+  if (data && data.length > 0) {
+    for (const task of data) {
+      void fireWebhook(user.id, 'task.created', { task: { id: task.id, title: task.title, type: task.type, priority: task.priority, date: task.date } })
+    }
+  }
+
   return NextResponse.json(data)
 }

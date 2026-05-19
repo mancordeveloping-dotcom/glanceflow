@@ -6,22 +6,44 @@ const steps = [
   {
     icon: '👋',
     title: 'Welcome to GlanceFlow',
-    desc: 'The AI productivity app that turns any screenshot into an organized task list in seconds.',
+    desc: 'The AI productivity app that turns any screenshot into an organized task list in seconds. Let\'s take a quick tour!',
+    hint: null,
   },
   {
     icon: '📸',
-    title: 'Upload a screenshot',
-    desc: 'Drag & drop any image — WhatsApp chats, emails, notes. Gemini AI extracts every task automatically.',
+    title: 'AI Screenshot Processing',
+    desc: 'Drag & drop any image — WhatsApp chats, emails, notes, calendars. Gemini AI extracts every task automatically with dates, times and priorities.',
+    hint: '✦ AI also assigns priority based on context — urgent deadlines get flagged automatically.',
   },
   {
     icon: '📋',
-    title: 'Manage your tasks',
-    desc: 'Filter, complete, organize by project and priority. Track your progress in the Statistics page.',
+    title: 'Dashboard & Filtering',
+    desc: 'Filter by status, type, priority or project. Use the search bar to find tasks instantly. Toggle between list and calendar view.',
+    hint: '⌨ Press N to quick-add, / to search, C for calendar, ? for all shortcuts.',
+  },
+  {
+    icon: '✅',
+    title: 'Subtasks & Timer',
+    desc: 'Break any task into subtasks — check them off one by one with a visual progress bar. Use the built-in timer to track how long you spend on each task.',
+    hint: '🔁 Recurring tasks auto-create the next occurrence when you complete them.',
+  },
+  {
+    icon: '📊',
+    title: 'Stats & Heatmap',
+    desc: 'Track your streaks, earn badges and view a GitHub-style activity heatmap showing 16 weeks of productivity. Donuts show completion by type and priority.',
+    hint: '🏆 Complete your first task to earn the First Task badge!',
+  },
+  {
+    icon: '🔗',
+    title: 'Integrations & Export',
+    desc: 'Connect GlanceFlow to Zapier, Notion, Slack, Google Sheets and more via webhooks. Export tasks to CSV or print a clean PDF summary.',
+    hint: '⚡ Find integrations under Tools → Integrations in the navigation.',
   },
   {
     icon: '🚀',
     title: "You're all set!",
-    desc: 'Start by uploading your first screenshot on the home page. Premium users get unlimited AI processing.',
+    desc: 'Start by uploading your first screenshot on the home page. Premium users get unlimited AI processing and full task history.',
+    hint: null,
   },
 ]
 
@@ -53,16 +75,26 @@ export default function OnboardingModal() {
             <button
               key={i}
               onClick={() => setStep(i)}
-              className={`h-1.5 rounded-full transition-all duration-300 ${i === step ? 'w-8 bg-violet-500' : 'w-1.5 bg-white/15'}`}
+              className={`h-1.5 rounded-full transition-all duration-300 ${i === step ? 'w-8 bg-violet-500' : i < step ? 'w-1.5 bg-violet-500/40' : 'w-1.5 bg-white/15'}`}
             />
           ))}
         </div>
 
+        {/* Step counter */}
+        <p className="text-center text-[10px] font-bold text-slate-600 uppercase tracking-widest mb-4">
+          Step {step + 1} of {steps.length}
+        </p>
+
         {/* Content */}
-        <div className="text-center space-y-4 mb-8">
+        <div className="text-center space-y-4 mb-6">
           <div className="text-6xl animate-bounce-soft">{current.icon}</div>
-          <h2 className="text-2xl font-extrabold text-white">{current.title}</h2>
+          <h2 className="text-xl font-extrabold text-white">{current.title}</h2>
           <p className="text-slate-400 leading-relaxed text-sm">{current.desc}</p>
+          {current.hint && (
+            <p className="rounded-xl bg-violet-500/10 border border-violet-500/20 px-3 py-2 text-xs text-violet-300 text-left">
+              {current.hint}
+            </p>
+          )}
         </div>
 
         {/* Actions */}
@@ -91,6 +123,16 @@ export default function OnboardingModal() {
             </button>
           )}
         </div>
+
+        {/* Back button */}
+        {step > 0 && (
+          <button
+            onClick={() => setStep(s => s - 1)}
+            className="mt-3 w-full text-center text-xs text-slate-600 hover:text-slate-400 transition-colors"
+          >
+            ← Back
+          </button>
+        )}
       </div>
     </div>
   )

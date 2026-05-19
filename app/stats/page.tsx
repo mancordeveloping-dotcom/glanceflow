@@ -34,6 +34,102 @@ function getLast7Days() {
   })
 }
 
+function getLast112Days() {
+  return Array.from({ length: 112 }, (_, i) => {
+    const d = new Date()
+    d.setDate(d.getDate() - (111 - i))
+    return d.toISOString().split('T')[0]
+  })
+}
+
+function ActivityHeatmap({ tasks }: { tasks: Task[] }) {
+  const days = getLast112Days()
+  // Count completions per day
+  const counts: Record<string, number> = {}
+  tasks.forEach(t => {
+    if (t.status === 'done' && t.updated_at) {
+      const day = t.updated_at.split('T')[0]
+      counts[day] = (counts[day] ?? 0) + 1
+    }
+  })
+  const maxCount = Math.max(...Object.values(counts), 1)
+
+  function getColor(count: number) {
+    if (count === 0) return 'rgba(255,255,255,0.04)'
+    const intensity = count / maxCount
+    if (intensity < 0.25) return 'rgba(124,58,237,0.3)'
+    if (intensity < 0.5)  return 'rgba(124,58,237,0.55)'
+    if (intensity < 0.75) return 'rgba(124,58,237,0.8)'
+    return 'rgba(139,92,246,1)'
+  }
+
+  // Group into weeks (columns of 7)
+  const weeks: string[][] = []
+  for (let i = 0; i < days.length; i += 7) {
+    weeks.push(days.slice(i, i + 7))
+  }
+
+  const monthLabels: { label: string; col: number }[] = []
+  weeks.forEach((week, wi) => {
+    const firstDay = new Date(week[0] + 'T00:00:00')
+    if (firstDay.getDate() <= 7) {
+      monthLabels.push({ label: firstDay.toLocaleDateString('en', { month: 'short' }), col: wi })
+    }
+  })
+
+  const totalDone = Object.values(counts).reduce((a, b) => a + b, 0)
+
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center justify-between">
+        <p className="font-bold text-white">Activity — last 16 weeks</p>
+        <span className="text-xs text-slate-500">{totalDone} tasks completed</span>
+      </div>
+      <div className="overflow-x-auto pb-1">
+        <div className="relative inline-block">
+          {/* Month labels */}
+          <div className="flex gap-1 mb-1 pl-0" style={{ paddingLeft: 0 }}>
+            {weeks.map((_, wi) => {
+              const ml = monthLabels.find(m => m.col === wi)
+              return (
+                <div key={wi} className="w-3 text-[9px] text-slate-600 shrink-0">
+                  {ml ? ml.label : ''}
+                </div>
+              )
+            })}
+          </div>
+          {/* Grid */}
+          <div className="flex gap-1">
+            {weeks.map((week, wi) => (
+              <div key={wi} className="flex flex-col gap-1">
+                {week.map(day => {
+                  const count = counts[day] ?? 0
+                  return (
+                    <div
+                      key={day}
+                      title={`${day}: ${count} task${count !== 1 ? 's' : ''}`}
+                      className="h-3 w-3 rounded-sm cursor-default transition-opacity hover:opacity-80"
+                      style={{ backgroundColor: getColor(count) }}
+                    />
+                  )
+                })}
+              </div>
+            ))}
+          </div>
+          {/* Legend */}
+          <div className="flex items-center gap-1.5 mt-2 justify-end">
+            <span className="text-[10px] text-slate-600">Less</span>
+            {[0, 0.25, 0.5, 0.75, 1].map(v => (
+              <div key={v} className="h-3 w-3 rounded-sm" style={{ backgroundColor: getColor(v * maxCount) }} />
+            ))}
+            <span className="text-[10px] text-slate-600">More</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function DonutChart({ segments }: { segments: { value: number; color: string; label: string }[] }) {
   const total = segments.reduce((s, x) => s + x.value, 0)
   if (total === 0) return <div className="h-40 flex items-center justify-center text-slate-500 text-sm">No data</div>
@@ -260,6 +356,11 @@ export default function StatsPage() {
           <p className="font-bold text-white text-sm">By priority</p>
           <DonutChart segments={prioritySegments} />
         </div>
+      </div>
+
+      {/* Activity heatmap */}
+      <div className="glass inner-highlight rounded-2xl p-6 border border-white/5">
+        <ActivityHeatmap tasks={tasks} />
       </div>
 
       {/* Expenses breakdown */}

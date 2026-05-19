@@ -123,7 +123,7 @@ export default function Header() {
             <div className="relative" ref={toolsRef}>
               <button
                 onClick={() => setToolsOpen(v => !v)}
-                className={`flex items-center gap-1 hover:text-white transition-colors ${['/expenses','/calendar','/projects','/stats'].includes(pathname) ? 'text-white' : ''}`}
+                className={`flex items-center gap-1 hover:text-white transition-colors ${['/expenses','/calendar','/projects','/stats','/integrations'].includes(pathname) ? 'text-white' : ''}`}
               >
                 Tools
                 <svg className={`h-3.5 w-3.5 transition-transform ${toolsOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -137,6 +137,7 @@ export default function Header() {
                     { href: '/calendar', icon: '📅', label: 'Calendar' },
                     { href: '/projects', icon: '📁', label: 'Projects' },
                     { href: '/stats', icon: '📊', label: 'Statistics' },
+                    { href: '/integrations', icon: '🔗', label: 'Integrations' },
                   ].map(item => (
                     <Link key={item.href} href={item.href} onClick={() => setToolsOpen(false)}
                       className={`flex items-center gap-2.5 px-4 py-3 text-sm font-medium transition-colors hover:bg-white/8
@@ -324,6 +325,7 @@ export default function Header() {
                 { href: '/calendar', label: 'Calendar', icon: '📅' },
                 { href: '/projects', label: 'Projects', icon: '📁' },
                 { href: '/stats', label: 'Statistics', icon: '📊' },
+                { href: '/integrations', label: 'Integrations', icon: '🔗' },
               ].map(item => (
                 <Link key={item.href} href={item.href} onClick={() => setMobileOpen(false)}
                   className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition-colors

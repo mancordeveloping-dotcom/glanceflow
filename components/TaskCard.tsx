@@ -90,6 +90,10 @@ export default function TaskCard({ task, projects = [], onToggle, onDelete, onEd
   const [priority,    setPriority]    = useState<TaskPriority | ''>(task.priority ?? '')
   const [recurrence,  setRecurrence]  = useState<TaskRecurrence | ''>(task.recurrence ?? '')
 
+  // Subtasks (local edit state)
+  const [editSubtasks, setEditSubtasks] = useState<Array<{ id: string; title: string; done: boolean }>>(task.subtasks ?? [])
+  const [newSubtask, setNewSubtask]     = useState('')
+
   function handleDelete() {
     if (!onDelete) return
     setDeleting(true)
@@ -106,6 +110,8 @@ export default function TaskCard({ task, projects = [], onToggle, onDelete, onEd
     setProjectId(task.project_id ?? '')
     setPriority(task.priority ?? '')
     setRecurrence(task.recurrence ?? '')
+    setEditSubtasks(task.subtasks ?? [])
+    setNewSubtask('')
     setEditing(true)
   }
 
@@ -122,9 +128,23 @@ export default function TaskCard({ task, projects = [], onToggle, onDelete, onEd
       project_id:  projectId || null,
       priority:    (priority as TaskPriority) || null,
       recurrence:  (recurrence as TaskRecurrence) || null,
+      subtasks:    editSubtasks,
     })
     setSaving(false)
     setEditing(false)
+  }
+
+  function addSubtask() {
+    const t = newSubtask.trim()
+    if (!t) return
+    setEditSubtasks(s => [...s, { id: crypto.randomUUID(), title: t, done: false }])
+    setNewSubtask('')
+  }
+
+  function toggleSubtaskInCard(subtaskId: string) {
+    if (!onEdit) return
+    const updated = (task.subtasks ?? []).map(s => s.id === subtaskId ? { ...s, done: !s.done } : s)
+    onEdit(task, { subtasks: updated })
   }
 
   /* ── Edit form ── */
@@ -194,6 +214,34 @@ export default function TaskCard({ task, projects = [], onToggle, onDelete, onEd
               {projects.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
             </select>
           )}
+
+          {/* Subtasks editor */}
+          <div className="space-y-2">
+            <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">Subtasks</p>
+            {editSubtasks.map(s => (
+              <div key={s.id} className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setEditSubtasks(prev => prev.map(x => x.id === s.id ? { ...x, done: !x.done } : x))}
+                  className={`shrink-0 h-4 w-4 rounded border-2 flex items-center justify-center transition-colors ${s.done ? 'border-emerald-500 bg-emerald-500/20' : 'border-white/30'}`}
+                >
+                  {s.done && <svg className="h-2.5 w-2.5 text-emerald-400" fill="none" viewBox="0 0 10 10" stroke="currentColor" strokeWidth={2.5}><path d="M1.5 5l2.5 2.5 4.5-5"/></svg>}
+                </button>
+                <span className={`flex-1 text-xs ${s.done ? 'line-through text-slate-500' : 'text-slate-300'}`}>{s.title}</span>
+                <button type="button" onClick={() => setEditSubtasks(prev => prev.filter(x => x.id !== s.id))} className="text-slate-600 hover:text-red-400 transition-colors text-xs">✕</button>
+              </div>
+            ))}
+            <div className="flex gap-2">
+              <input
+                value={newSubtask}
+                onChange={e => setNewSubtask(e.target.value)}
+                onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addSubtask() } }}
+                placeholder="Add subtask…"
+                className="flex-1 rounded-xl border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-violet-500/50"
+              />
+              <button type="button" onClick={addSubtask} className="rounded-xl border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-slate-400 hover:text-white transition-colors">+ Add</button>
+            </div>
+          </div>
         </div>
 
         <div className="flex gap-2">
@@ -285,6 +333,38 @@ export default function TaskCard({ task, projects = [], onToggle, onDelete, onEd
             {task.description}
           </p>
         )}
+
+        {/* Subtasks */}
+        {(task.subtasks ?? []).length > 0 && (() => {
+          const subs = task.subtasks!
+          const done = subs.filter(s => s.done).length
+          const pct = Math.round((done / subs.length) * 100)
+          return (
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between text-[10px] text-slate-500">
+                <span>Subtasks</span>
+                <span className="font-bold text-slate-400">{done}/{subs.length}</span>
+              </div>
+              <div className="h-1 rounded-full bg-white/8 overflow-hidden">
+                <div className="h-full rounded-full bg-gradient-to-r from-violet-500 to-cyan-500 transition-all" style={{ width: `${pct}%` }} />
+              </div>
+              <div className="space-y-1">
+                {subs.map(s => (
+                  <button
+                    key={s.id}
+                    onClick={() => toggleSubtaskInCard(s.id)}
+                    className="flex items-center gap-2 w-full text-left group"
+                  >
+                    <span className={`shrink-0 h-3.5 w-3.5 rounded border flex items-center justify-center transition-colors ${s.done ? 'border-emerald-500 bg-emerald-500/20' : 'border-white/20 group-hover:border-white/40'}`}>
+                      {s.done && <svg className="h-2 w-2 text-emerald-400" fill="none" viewBox="0 0 10 10" stroke="currentColor" strokeWidth={2.5}><path d="M1.5 5l2.5 2.5 4.5-5"/></svg>}
+                    </span>
+                    <span className={`text-[11px] ${s.done ? 'line-through text-slate-600' : 'text-slate-400 group-hover:text-slate-300'} transition-colors`}>{s.title}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )
+        })()}
 
         {(task.date || task.time || task.location) && (
           <div className="flex flex-wrap gap-x-3 gap-y-1">

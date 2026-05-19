@@ -12,6 +12,12 @@ export interface Project {
 export type TaskPriority = 'urgent' | 'high' | 'medium' | 'low'
 export type TaskRecurrence = 'daily' | 'weekly' | 'monthly'
 
+export interface Subtask {
+  id: string
+  title: string
+  done: boolean
+}
+
 export interface Task {
   id: string
   title: string
@@ -27,6 +33,7 @@ export interface Task {
   recurrence: TaskRecurrence | null
   recurrence_paused: boolean | null
   share_token: string | null
+  subtasks: Subtask[] | null
   created_at: string
   updated_at: string
 }
