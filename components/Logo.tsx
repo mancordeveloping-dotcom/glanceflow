@@ -17,22 +17,20 @@ export default function Logo({ size = 32 }: { size?: number }) {
       xmlns="http://www.w3.org/2000/svg"
     >
       <defs>
-        {/* Dark background gradient */}
         <linearGradient id={bgId} x1="0" y1="0" x2="40" y2="40" gradientUnits="userSpaceOnUse">
           <stop stopColor="#0e0820" />
           <stop offset="1" stopColor="#060f1e" />
         </linearGradient>
 
-        {/* Violet → indigo → cyan brand gradient */}
-        <linearGradient id={gradId} x1="2" y1="4" x2="38" y2="36" gradientUnits="userSpaceOnUse">
+        {/* violet → indigo → cyan */}
+        <linearGradient id={gradId} x1="3" y1="5" x2="37" y2="35" gradientUnits="userSpaceOnUse">
           <stop stopColor="#c4b5fd" />
-          <stop offset="0.5" stopColor="#818cf8" />
+          <stop offset="0.45" stopColor="#818cf8" />
           <stop offset="1" stopColor="#22d3ee" />
         </linearGradient>
 
-        {/* Soft glow filter */}
-        <filter id={glowId} x="-80%" y="-80%" width="260%" height="260%">
-          <feGaussianBlur stdDeviation="2.5" result="b" />
+        <filter id={glowId} x="-60%" y="-60%" width="220%" height="220%">
+          <feGaussianBlur stdDeviation="2" result="b" />
           <feMerge>
             <feMergeNode in="b" />
             <feMergeNode in="SourceGraphic" />
@@ -40,38 +38,43 @@ export default function Logo({ size = 32 }: { size?: number }) {
         </filter>
       </defs>
 
-      {/* Background tile */}
+      {/* Background */}
       <rect width="40" height="40" rx="11" fill={`url(#${bgId})`} />
 
-      {/* Hairline gradient border */}
-      <rect
-        x="0.65" y="0.65" width="38.7" height="38.7" rx="10.35"
-        stroke={`url(#${gradId})`} strokeWidth="0.8" fill="none" opacity="0.35"
+      {/* Hairline border */}
+      <rect x="0.65" y="0.65" width="38.7" height="38.7" rx="10.35"
+        stroke={`url(#${gradId})`} strokeWidth="0.8" fill="none" opacity="0.3" />
+
+      {/* ── Glow pass (blurred behind) ── */}
+      <g filter={`url(#${glowId})`} opacity="0.35">
+        {/* G arc */}
+        <path d="M 21,11 A 10,10 0 1 0 21,27 L 13,27"
+          stroke={`url(#${gradId})`} strokeWidth="3.5" strokeLinecap="round" fill="none" />
+        {/* Lightning F: top bar → diagonal → mid bar → diagonal */}
+        <path d="M 22,10 L 31,10 L 23,20 L 29,20 L 21,31"
+          stroke={`url(#${gradId})`} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+      </g>
+
+      {/* ── G — open arc with horizontal bar ── */}
+      <path
+        d="M 21,11 A 10,10 0 1 0 21,27 L 13,27"
+        stroke={`url(#${gradId})`}
+        strokeWidth="2.5"
+        strokeLinecap="round"
+        fill="none"
       />
 
-      {/* Glow layer (blurred copy behind the text) */}
-      <text
-        x="20" y="26"
-        textAnchor="middle"
-        fontFamily="'Inter', 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif"
-        fontWeight="800"
-        fontSize="17"
-        letterSpacing="-1"
-        fill={`url(#${gradId})`}
-        filter={`url(#${glowId})`}
-        opacity="0.45"
-      >GF</text>
-
-      {/* Crisp GF monogram */}
-      <text
-        x="20" y="26"
-        textAnchor="middle"
-        fontFamily="'Inter', 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif"
-        fontWeight="800"
-        fontSize="17"
-        letterSpacing="-1"
-        fill={`url(#${gradId})`}
-      >GF</text>
+      {/* ── Lightning bolt shaped as F ──
+           top bar  →  diagonal ↙  →  mid bar →  diagonal ↙
+           reads as F, strikes as ⚡                        ── */}
+      <path
+        d="M 22,10 L 31,10 L 23,20 L 29,20 L 21,31"
+        stroke={`url(#${gradId})`}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        fill="none"
+      />
     </svg>
   )
 }

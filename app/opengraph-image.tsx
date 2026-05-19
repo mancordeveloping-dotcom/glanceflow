@@ -36,16 +36,16 @@ export default function OGImage() {
 
         {/* Logo + name */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 32 }}>
-          <div style={{
-            width: 72, height: 72, borderRadius: 18,
-            background: 'linear-gradient(135deg, #6d28d9 0%, #0891b2 100%)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: 26, fontWeight: 900, letterSpacing: '-1px',
-            fontFamily: 'system-ui, sans-serif',
-            color: '#ffffff',
-          }}>
-            GF
-          </div>
+          {/* G + lightning-F icon */}
+          <svg width="72" height="72" viewBox="0 0 40 40" fill="none">
+            <rect width="40" height="40" rx="11" fill="#0e0820"/>
+            <rect x="0.65" y="0.65" width="38.7" height="38.7" rx="10.35"
+              stroke="#818cf8" strokeWidth="0.8" fill="none" opacity="0.35"/>
+            <path d="M 21,11 A 10,10 0 1 0 21,27 L 13,27"
+              stroke="#a78bfa" strokeWidth="2.5" strokeLinecap="round" fill="none"/>
+            <path d="M 22,10 L 31,10 L 23,20 L 29,20 L 21,31"
+              stroke="#22d3ee" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+          </svg>
           <span style={{
             fontSize: 48, fontWeight: 900,
             background: 'linear-gradient(135deg, #a78bfa, #38bdf8)',

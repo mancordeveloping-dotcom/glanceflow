@@ -23,10 +23,9 @@ body {
 .logo-icon {
   width: 30px; height: 30px;
   border-radius: 9px;
-  background: linear-gradient(135deg, #6d28d9 0%, #0891b2 100%);
+  background: #0e0820;
+  border: 1px solid rgba(167,139,250,0.25);
   display: flex; align-items: center; justify-content: center;
-  font-weight: 900; font-size: 11px; letter-spacing: -0.5px;
-  color: #fff;
 }
 
 .logo-text { font-weight: 800; font-size: 15px; background: linear-gradient(135deg, #a78bfa, #38bdf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
