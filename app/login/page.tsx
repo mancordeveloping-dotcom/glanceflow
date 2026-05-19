@@ -72,7 +72,7 @@ export default function LoginPage() {
             {mode === 'login' ? 'Welcome back' : 'Create your account'}
           </h1>
           <p className="text-sm text-slate-400">
-            {mode === 'login' ? 'Sign in to GlanceFlow' : 'Free — 3 screenshots/day'}
+            {mode === 'login' ? 'Sign in to GlanceFlow' : 'Free — 3 tasks/day'}
           </p>
         </div>
 

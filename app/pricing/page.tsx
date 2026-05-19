@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { supabaseBrowser } from '@/lib/supabase-browser'
 
 const freeFeatures = [
-  { text: '3 screenshots per day',        ok: true  },
+  { text: '3 tasks per day',               ok: true  },
   { text: 'AI task extraction',           ok: true  },
   { text: 'Dashboard & projects',         ok: true  },
   { text: 'Task priority & recurrence',   ok: true  },

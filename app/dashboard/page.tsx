@@ -385,7 +385,7 @@ export default function DashboardPage() {
       {upgraded && (
         <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/10 px-5 py-3 flex items-center gap-3">
           <span className="text-xl">🎉</span>
-          <p className="text-sm font-bold text-emerald-300">Welcome to Premium! Unlimited screenshots unlocked.</p>
+          <p className="text-sm font-bold text-emerald-300">Welcome to Premium! Unlimited tasks unlocked.</p>
         </div>
       )}
 

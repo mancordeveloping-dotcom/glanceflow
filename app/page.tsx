@@ -51,7 +51,7 @@ const testimonials = [
 
 const faqs = [
   { q: 'What types of screenshots work?',           a: "Any image — WhatsApp messages, emails, notes, Slack, documents. If there's text, GlanceFlow extracts tasks from it." },
-  { q: 'How many screenshots can I process free?',  a: '3 screenshots per day, forever. Upgrade to Premium for unlimited processing.' },
+  { q: 'How many tasks can I create free?',          a: '3 tasks per day, forever. Upgrade to Premium for unlimited tasks.' },
   { q: 'Is my data private?',                       a: 'Yes. Screenshots are processed by Gemini AI and immediately discarded. Only the extracted tasks are saved in your private database.' },
   { q: 'Does it work on mobile?',                   a: 'Yes! GlanceFlow is a PWA — install it on your iPhone or Android from the browser and use it like a native app.' },
   { q: 'What languages does it support?',           a: 'Any language. Gemini AI understands Italian, English, Spanish, French, and many more.' },
