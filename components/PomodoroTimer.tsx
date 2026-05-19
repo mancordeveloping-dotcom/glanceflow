@@ -4,16 +4,26 @@ import { useEffect, useRef, useState } from 'react'
 
 type Phase = 'work' | 'break'
 
-const WORK_SECS = 25 * 60
-const BREAK_SECS = 5 * 60
+const DURATIONS = [
+  { label: '15m', work: 15 * 60, break: 5 * 60 },
+  { label: '25m', work: 25 * 60, break: 5 * 60 },
+  { label: '45m', work: 45 * 60, break: 10 * 60 },
+  { label: '60m', work: 60 * 60, break: 15 * 60 },
+]
 
 export default function PomodoroTimer() {
   const [open, setOpen] = useState(false)
   const [phase, setPhase] = useState<Phase>('work')
-  const [seconds, setSeconds] = useState(WORK_SECS)
+  const [durationIdx, setDurationIdx] = useState(1) // default 25m
+  const [seconds, setSeconds] = useState(DURATIONS[1].work)
   const [running, setRunning] = useState(false)
   const [sessions, setSessions] = useState(0)
+  const [focusTask, setFocusTask] = useState('')
+  const [editingTask, setEditingTask] = useState(false)
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+
+  const WORK_SECS = DURATIONS[durationIdx].work
+  const BREAK_SECS = DURATIONS[durationIdx].break
 
   useEffect(() => {
     if (!running) {
@@ -129,12 +139,38 @@ export default function PomodoroTimer() {
             </button>
           </div>
 
-          {/* Phase toggle */}
+          {/* Focus task */}
+          <div className="space-y-1">
+            {editingTask ? (
+              <input
+                autoFocus
+                value={focusTask}
+                onChange={e => setFocusTask(e.target.value)}
+                onBlur={() => setEditingTask(false)}
+                onKeyDown={e => e.key === 'Enter' && setEditingTask(false)}
+                placeholder="What are you focusing on?"
+                className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-violet-500/50"
+              />
+            ) : (
+              <button
+                onClick={() => setEditingTask(true)}
+                className="w-full text-left rounded-xl border border-white/8 bg-white/3 px-3 py-2 text-xs transition-colors hover:bg-white/8"
+              >
+                {focusTask
+                  ? <span className="text-white truncate block">{focusTask}</span>
+                  : <span className="text-slate-500">+ Add focus task…</span>
+                }
+              </button>
+            )}
+          </div>
+
+          {/* Duration selector */}
           <div className="flex rounded-xl border border-white/8 bg-white/3 p-1 gap-1">
-            {(['work', 'break'] as Phase[]).map(p => (
-              <button key={p} onClick={() => { setPhase(p); setRunning(false); setSeconds(p === 'work' ? WORK_SECS : BREAK_SECS) }}
-                className={`flex-1 rounded-lg py-1 text-xs font-semibold transition-all ${phase === p ? 'bg-white/10 text-white' : 'text-slate-500 hover:text-white'}`}>
-                {p === 'work' ? '25m' : '5m'}
+            {DURATIONS.map((d, i) => (
+              <button key={d.label}
+                onClick={() => { setDurationIdx(i); setRunning(false); setPhase('work'); setSeconds(d.work) }}
+                className={`flex-1 rounded-lg py-1 text-xs font-semibold transition-all ${durationIdx === i ? 'bg-white/10 text-white' : 'text-slate-500 hover:text-white'}`}>
+                {d.label}
               </button>
             ))}
           </div>

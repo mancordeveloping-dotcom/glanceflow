@@ -275,15 +275,30 @@ export default function TaskCard({ task, projects = [], onToggle, onDelete, onEd
         </div>
 
         {onToggle && (
-          <button onClick={() => onToggle(task)}
-            className={`w-full rounded-xl py-2 text-xs font-bold transition-all
-              ${isDone
-                ? 'bg-white/5 text-slate-400 hover:bg-white/8 border border-white/8'
-                : 'bg-white/5 text-emerald-400 hover:bg-emerald-500/10 border border-emerald-500/20'
-              }`}
-          >
-            {isDone ? '↩ Reopen' : '✓ Mark as Done'}
-          </button>
+          <div className="flex gap-2">
+            <button onClick={() => onToggle(task)}
+              className={`flex-1 rounded-xl py-2 text-xs font-bold transition-all
+                ${isDone
+                  ? 'bg-white/5 text-slate-400 hover:bg-white/8 border border-white/8'
+                  : 'bg-white/5 text-emerald-400 hover:bg-emerald-500/10 border border-emerald-500/20'
+                }`}
+            >
+              {isDone ? '↩ Reopen' : task.recurrence ? '⏭ Skip' : '✓ Mark as Done'}
+            </button>
+            {task.recurrence && !isDone && onEdit && (
+              <button
+                onClick={() => onEdit(task, { recurrence_paused: !task.recurrence_paused })}
+                className={`rounded-xl px-3 py-2 text-xs font-bold transition-all border ${
+                  task.recurrence_paused
+                    ? 'text-violet-400 border-violet-500/20 bg-violet-500/10 hover:bg-violet-500/20'
+                    : 'text-slate-400 border-white/10 bg-white/5 hover:bg-white/10'
+                }`}
+                title={task.recurrence_paused ? 'Resume recurrence' : 'Pause recurrence'}
+              >
+                {task.recurrence_paused ? '▶' : '⏸'}
+              </button>
+            )}
+          </div>
         )}
       </div>
     </div>

@@ -27,6 +27,7 @@ export async function PATCH(
     project_id?: string | null
     priority?: TaskPriority | null
     recurrence?: TaskRecurrence | null
+    recurrence_paused?: boolean | null
   }
 
   const updates: Record<string, unknown> = { updated_at: new Date().toISOString() }
@@ -39,7 +40,8 @@ export async function PATCH(
   if (body.type        !== undefined) updates.type        = body.type
   if (body.project_id  !== undefined) updates.project_id  = body.project_id
   if (body.priority    !== undefined) updates.priority    = body.priority
-  if (body.recurrence  !== undefined) updates.recurrence  = body.recurrence
+  if (body.recurrence          !== undefined) updates.recurrence          = body.recurrence
+  if (body.recurrence_paused   !== undefined) updates.recurrence_paused   = body.recurrence_paused
 
   const { data, error } = await supabase
     .from('tasks')
@@ -82,8 +84,8 @@ export async function PATCH(
     })()
   }
 
-  // Auto-create next occurrence for recurring tasks when marked done
-  if (body.status === 'done' && data.recurrence && data.date) {
+  // Auto-create next occurrence for recurring tasks when marked done (skip if paused)
+  if (body.status === 'done' && data.recurrence && data.date && !data.recurrence_paused) {
     const next = new Date(data.date + 'T00:00:00')
     if (data.recurrence === 'daily')   next.setDate(next.getDate() + 1)
     if (data.recurrence === 'weekly')  next.setDate(next.getDate() + 7)

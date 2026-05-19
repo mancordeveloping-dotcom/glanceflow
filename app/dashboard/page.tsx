@@ -12,9 +12,12 @@ import PomodoroTimer from '@/components/PomodoroTimer'
 import NotificationManager from '@/components/NotificationManager'
 import GamificationWidget from '@/components/GamificationWidget'
 import TemplateModal from '@/components/TemplateModal'
+import PWAInstallBanner from '@/components/PWAInstallBanner'
 import type { Task, Project, ParsedTask } from '@/types'
 
-const PRIORITY_ORDER = { urgent: 0, high: 1, medium: 2, low: 3 }
+type SortBy = 'priority' | 'date_asc' | 'date_desc' | 'created' | 'title'
+
+const PRIORITY_RANK: Record<string, number> = { urgent: 0, high: 1, medium: 2, low: 3 }
 
 function triggerConfetti() {
   const colors = ['#7c3aed', '#06b6d4', '#f472b6', '#fbbf24', '#34d399']
@@ -77,6 +80,7 @@ export default function DashboardPage() {
   const [dragId, setDragId] = useState<string | null>(null)
   const [dragOverId, setDragOverId] = useState<string | null>(null)
   const [templateOpen, setTemplateOpen] = useState(false)
+  const [sortBy, setSortBy] = useState<SortBy>('priority')
   const { toast } = useToast()
   const router = useRouter()
 
@@ -201,9 +205,16 @@ export default function DashboardPage() {
       return true
     })
     .sort((a, b) => {
-      const pa = a.priority ? PRIORITY_ORDER[a.priority] : 99
-      const pb = b.priority ? PRIORITY_ORDER[b.priority] : 99
-      return pa - pb
+      if (sortBy === 'priority') {
+        const pa = a.priority ? PRIORITY_RANK[a.priority] : 99
+        const pb = b.priority ? PRIORITY_RANK[b.priority] : 99
+        return pa - pb
+      }
+      if (sortBy === 'date_asc') return (a.date ?? '9999') > (b.date ?? '9999') ? 1 : -1
+      if (sortBy === 'date_desc') return (a.date ?? '') < (b.date ?? '') ? 1 : -1
+      if (sortBy === 'title') return a.title.localeCompare(b.title)
+      // created (default newest first)
+      return a.created_at < b.created_at ? 1 : -1
     })
 
   const displayTasks = dragOrder ?? filtered
@@ -226,6 +237,7 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-8">
+      <PWAInstallBanner />
       <TemplateModal open={templateOpen} onClose={() => setTemplateOpen(false)} onAdd={handleAddTemplates} />
       <NotificationManager tasks={tasks} />
       <PomodoroTimer />
@@ -286,6 +298,17 @@ export default function DashboardPage() {
           >
             📋 Templates
           </button>
+          <select
+            value={sortBy}
+            onChange={e => setSortBy(e.target.value as SortBy)}
+            className="rounded-xl border border-white/10 bg-[#0d0d1a] px-3 py-2 text-xs font-semibold text-slate-300 focus:outline-none focus:ring-1 focus:ring-violet-500/50"
+          >
+            <option value="priority">↕ Priority</option>
+            <option value="date_asc">📅 Date ↑</option>
+            <option value="date_desc">📅 Date ↓</option>
+            <option value="created">🕐 Newest</option>
+            <option value="title">🔤 Title A-Z</option>
+          </select>
           <button
             onClick={() => exportCSV(tasks)}
             className="flex items-center gap-1.5 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs font-semibold text-slate-300 hover:bg-white/10 transition-colors"
