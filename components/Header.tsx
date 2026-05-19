@@ -89,10 +89,12 @@ export default function Header() {
       <div className="mx-auto max-w-5xl px-4 py-3.5 flex items-center justify-between">
         <div className="flex items-center gap-3 shrink-0">
           <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="transition-transform group-hover:scale-110 duration-200">
+            <div className="transition-transform group-hover:scale-110 duration-200 shrink-0">
               <Logo size={34} />
             </div>
-            <span className="text-lg font-extrabold gradient-text tracking-tight">GlanceFlow</span>
+            <span className="text-lg tracking-tight leading-none">
+              <span className="font-black text-white">Glance</span><span className="font-light gradient-text">Flow</span>
+            </span>
           </Link>
           <button
             onClick={toggleMode}

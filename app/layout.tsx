@@ -87,7 +87,7 @@ export default function RootLayout({
               <div className="grid sm:grid-cols-3 gap-8 mb-8">
                 {/* Brand */}
                 <div className="space-y-3">
-                  <span className="text-lg font-extrabold gradient-text">GlanceFlow</span>
+                  <span className="text-lg tracking-tight"><span className="font-black text-white">Glance</span><span className="font-light gradient-text">Flow</span></span>
                   <p className="text-xs text-slate-500 leading-relaxed">Turn any screenshot into an organized task list with AI. Free to start.</p>
                   <div className="flex items-center gap-3">
                     <a href="https://twitter.com" target="_blank" rel="noreferrer" className="text-slate-600 hover:text-white transition-colors">
