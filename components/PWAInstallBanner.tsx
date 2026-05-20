@@ -50,9 +50,11 @@ export default function PWAInstallBanner() {
   async function handleInstall() {
     if (!prompt) return
     await prompt.prompt()
-    const { outcome } = await prompt.userChoice
-    localStorage.setItem('pwa-dismissed', '1')
-    setVisible(false)
+    const result = await prompt.userChoice
+    if (result.outcome === 'accepted' || result.outcome === 'dismissed') {
+      localStorage.setItem('pwa-dismissed', '1')
+      setVisible(false)
+    }
   }
 
   function handleDismiss() {

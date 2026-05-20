@@ -91,16 +91,16 @@ body {
 /* ── Glass (dark) ── */
 
 .glass {
-  background: rgba(255, 255, 255, 0.04);
-  backdrop-filter: blur(20px) saturate(150%);
-  -webkit-backdrop-filter: blur(20px) saturate(150%);
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .glass-bright {
-  background: rgba(255, 255, 255, 0.07);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.12);
 }
 
@@ -175,7 +175,7 @@ body {
   height: 100%;
   background: linear-gradient(90deg, transparent, rgba(255,255,255,0.18), transparent);
   transform: translateX(-100%);
-  animation: shimmer 3s ease infinite;
+  animation: shimmer 4s ease infinite;
 }
 
 /* ── Inner highlight ── */
@@ -861,4 +861,26 @@ body {
     rgba(0,0,0,0.04) 75%
   ) !important;
   background-size: 200% 100% !important;
+}
+
+/* ── Performance: disable heavy animations on slow devices ── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ── Performance: disable float/aurora/blob animations on mobile ── */
+@media (max-width: 768px) {
+  .animate-float, .animate-pulse-glow, .animate-spin-slow,
+  .animate-neon, .float-card-l, .float-card-r, .float-card-c,
+  .panel-3d, .badge-float, .chip-float, .hero-halo,
+  .icon-glow, .neon-inner, .progress-glow, .animate-orbit { 
+    animation: none !important; 
+  }
+  .card-3d:hover, .tilt-left, .tilt-right, .tilt-center {
+    transform: none !important;
+  }
 }
