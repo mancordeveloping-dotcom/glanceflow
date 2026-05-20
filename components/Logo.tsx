@@ -39,23 +39,16 @@ export default function Logo({ size = 32 }: { size?: number }) {
       <rect x="0.6" y="0.6" width="38.8" height="38.8" rx="10.4"
         stroke={`url(#${gradId})`} strokeWidth="0.7" fill="none" opacity="0.4" />
 
-      {/* Glow layer behind */}
+      {/* Glow layer behind lightning bolt */}
       <path
-        d="M27 12 C20 6 9 9 8 20 C7 31 17 34 25 30 C29 28 30 24 30 21 L22 21"
-        stroke={`url(#${gradId})`} strokeWidth="5" strokeLinecap="round" fill="none"
-        opacity="0.25" filter={`url(#${glowId})`}
+        d="M23 6 L13 22 L19.5 22 L17 34 L27 18 L20.5 18 Z"
+        fill={`url(#${gradId})`} opacity="0.25" filter={`url(#${glowId})`}
       />
 
-      {/* Main G arc */}
+      {/* Lightning bolt */}
       <path
-        d="M27 12 C20 6 9 9 8 20 C7 31 17 34 25 30 C29 28 30 24 30 21 L22 21"
-        stroke={`url(#${gradId})`} strokeWidth="2.5" strokeLinecap="round" fill="none"
-      />
-
-      {/* Lightning arrow on the G bar */}
-      <path
-        d="M22 18.5 L25.5 21 L22 23.5"
-        stroke={`url(#${gradId})`} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none"
+        d="M23 6 L13 22 L19.5 22 L17 34 L27 18 L20.5 18 Z"
+        fill={`url(#${gradId})`}
       />
     </svg>
   )
