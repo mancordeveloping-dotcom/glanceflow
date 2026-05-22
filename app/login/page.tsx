@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { supabaseBrowser } from '@/lib/supabase-browser'
 import { useRouter } from 'next/navigation'
+import { useLang } from '@/context/LanguageContext'
 
 type Mode = 'login' | 'signup'
 
@@ -15,6 +16,7 @@ export default function LoginPage() {
   const [googleLoading, setGoogleLoading] = useState(false)
   const [signupDone, setSignupDone] = useState(false)
   const router = useRouter()
+  const { t } = useLang()
 
   async function handleGoogle() {
     setGoogleLoading(true)
@@ -49,12 +51,12 @@ export default function LoginPage() {
       <div className="flex min-h-[70vh] items-center justify-center">
         <div className="w-full max-w-sm text-center space-y-4">
           <div className="text-5xl">📧</div>
-          <h2 className="text-xl font-bold text-white">Check your email</h2>
+          <h2 className="text-xl font-bold text-white">{t('login.check.title')}</h2>
           <p className="text-sm text-slate-400">
-            We sent a confirmation link to <strong className="text-white">{email}</strong>.
+            {t('login.check.desc')} <strong className="text-white">{email}</strong>.
           </p>
           <button onClick={() => setMode('login')} className="text-sm text-violet-400 hover:text-violet-300">
-            Back to sign in
+            {t('login.check.back')}
           </button>
         </div>
       </div>
@@ -69,10 +71,10 @@ export default function LoginPage() {
 
         <div className="relative text-center space-y-1">
           <h1 className="text-2xl font-extrabold text-white">
-            {mode === 'login' ? 'Welcome back' : 'Create your account'}
+            {mode === 'login' ? t('login.welcome') : t('login.create')}
           </h1>
           <p className="text-sm text-slate-400">
-            {mode === 'login' ? 'Sign in to GlanceFlow' : 'Free — 3 tasks/day'}
+            {mode === 'login' ? t('login.subtitle.login') : t('login.subtitle.signup')}
           </p>
         </div>
 
@@ -88,18 +90,18 @@ export default function LoginPage() {
             <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/>
             <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
           </svg>
-          {googleLoading ? 'Redirecting…' : 'Continue with Google'}
+          {googleLoading ? t('login.google.loading') : t('login.google')}
         </button>
 
         <div className="flex items-center gap-3">
           <div className="flex-1 h-px bg-white/8" />
-          <span className="text-xs text-slate-500">or</span>
+          <span className="text-xs text-slate-500">{t('login.or')}</span>
           <div className="flex-1 h-px bg-white/8" />
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-1.5">Email</label>
+            <label className="block text-sm font-medium text-slate-300 mb-1.5">{t('login.email')}</label>
             <input
               type="email" value={email} onChange={(e) => setEmail(e.target.value)} required
               placeholder="you@example.com"
@@ -107,10 +109,10 @@ export default function LoginPage() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-1.5">Password</label>
+            <label className="block text-sm font-medium text-slate-300 mb-1.5">{t('login.password')}</label>
             <input
               type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6}
-              placeholder="Min 6 characters"
+              placeholder={t('login.password.placeholder')}
               className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500/50"
             />
           </div>
@@ -124,17 +126,17 @@ export default function LoginPage() {
             disabled={loading || googleLoading}
             className="shimmer-btn btn-3d w-full rounded-xl bg-gradient-to-r from-violet-600 to-cyan-500 py-3 text-sm font-bold text-white disabled:opacity-50 transition-opacity"
           >
-            {loading ? 'Loading…' : mode === 'login' ? 'Sign in' : 'Create account'}
+            {loading ? t('login.loading') : mode === 'login' ? t('login.submit.login') : t('login.submit.signup')}
           </button>
         </form>
 
         <p className="text-center text-sm text-slate-500">
-          {mode === 'login' ? "Don't have an account? " : 'Already have an account? '}
+          {mode === 'login' ? t('login.noAccount') + ' ' : t('login.hasAccount') + ' '}
           <button
             onClick={() => { setMode(mode === 'login' ? 'signup' : 'login'); setError(null) }}
             className="text-violet-400 hover:text-violet-300 font-semibold"
           >
-            {mode === 'login' ? 'Sign up free' : 'Sign in'}
+            {mode === 'login' ? t('login.signupFree') : t('login.submit.login')}
           </button>
         </p>
       </div>

@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation'
 import type { User } from '@supabase/supabase-js'
 import Logo from '@/components/Logo'
 import { usePathname } from 'next/navigation'
+import { useLang } from '@/context/LanguageContext'
 
 interface UsageData {
   used: number
@@ -27,6 +28,7 @@ export default function Header() {
   const toolsRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
   const pathname = usePathname()
+  const { t } = useLang()
 
   const [isDark, setIsDark] = useState(true)
 
@@ -102,8 +104,8 @@ export default function Header() {
         {/* Desktop nav */}
         <div className="hidden md:flex items-center gap-6">
           <nav className="flex items-center gap-5 text-sm font-medium text-slate-400">
-            <Link href="/" className={`hover:text-white transition-colors ${pathname === '/' ? 'text-white' : ''}`}>Home</Link>
-            <Link href="/dashboard" className={`hover:text-white transition-colors ${pathname === '/dashboard' ? 'text-white' : ''}`}>Dashboard</Link>
+            <Link href="/" className={`hover:text-white transition-colors ${pathname === '/' ? 'text-white' : ''}`}>{t('nav.home')}</Link>
+            <Link href="/dashboard" className={`hover:text-white transition-colors ${pathname === '/dashboard' ? 'text-white' : ''}`}>{t('nav.dashboard')}</Link>
 
             {/* Tools dropdown */}
             <div className="relative" ref={toolsRef}>
@@ -111,7 +113,7 @@ export default function Header() {
                 onClick={() => setToolsOpen(v => !v)}
                 className={`flex items-center gap-1 hover:text-white transition-colors ${['/expenses','/calendar','/projects','/stats','/integrations'].includes(pathname) ? 'text-white' : ''}`}
               >
-                Tools
+                {t('nav.tools')}
                 <svg className={`h-3.5 w-3.5 transition-transform ${toolsOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
                 </svg>
@@ -136,7 +138,7 @@ export default function Header() {
               )}
             </div>
 
-            <Link href="/pricing" className={`hover:text-white transition-colors ${pathname === '/pricing' ? 'text-white' : ''}`}>Pricing</Link>
+            <Link href="/pricing" className={`hover:text-white transition-colors ${pathname === '/pricing' ? 'text-white' : ''}`}>{t('nav.pricing')}</Link>
           </nav>
 
           <button
@@ -174,7 +176,7 @@ export default function Header() {
                       <div className="min-w-0">
                         <p className="text-sm font-bold text-white truncate">{user.email}</p>
                         <p className="text-xs text-slate-400">
-                          Membro dal {new Date(user.created_at).toLocaleDateString('it-IT', { month: 'long', year: 'numeric' })}
+                          {t('profile.member')} {new Date(user.created_at).toLocaleDateString(undefined, { month: 'long', year: 'numeric' })}
                         </p>
                       </div>
                     </div>
@@ -182,32 +184,32 @@ export default function Header() {
 
                   <div className="px-5 py-4 border-b border-white/8 space-y-3">
                     <div className="flex items-center justify-between text-sm">
-                      <span className="text-slate-400">Piano</span>
+                      <span className="text-slate-400">{t('profile.plan')}</span>
                       {usage?.isPremium ? (
-                        <span className="rounded-full bg-gradient-to-r from-violet-600 to-cyan-500 px-3 py-0.5 text-xs font-bold text-white">✦ Premium</span>
+                        <span className="rounded-full bg-gradient-to-r from-violet-600 to-cyan-500 px-3 py-0.5 text-xs font-bold text-white">{t('profile.plan.premium')}</span>
                       ) : (
-                        <span className="rounded-full border border-white/10 px-3 py-0.5 text-xs font-semibold text-slate-300">Free</span>
+                        <span className="rounded-full border border-white/10 px-3 py-0.5 text-xs font-semibold text-slate-300">{t('profile.plan.free')}</span>
                       )}
                     </div>
 
                     {!usage?.isPremium && usage && (
                       <div className="space-y-1.5">
                         <div className="flex items-center justify-between text-xs text-slate-400">
-                          <span>Tasks oggi</span>
+                          <span>{t('dashboard.tasksDone')}</span>
                           <span className="font-bold text-white">{usage.used}/{usage.limit}</span>
                         </div>
                         <div className="h-1.5 rounded-full bg-white/5 overflow-hidden">
                           <div className="h-full rounded-full bg-gradient-to-r from-violet-500 to-cyan-500 transition-all" style={{ width: `${(usage.used / usage.limit) * 100}%` }} />
                         </div>
                         <Link href="/pricing" onClick={() => setOpen(false)} className="block text-center rounded-xl bg-gradient-to-r from-violet-600 to-cyan-500 py-2 text-xs font-bold text-white hover:opacity-90 transition-opacity mt-2">
-                          Upgrade a Premium →
+                          {t('profile.upgrade')}
                         </Link>
                       </div>
                     )}
 
                     {usage?.isPremium && (
                       <button onClick={handlePortal} disabled={portalLoading} className="w-full text-left text-sm text-violet-400 font-semibold hover:text-violet-300 transition-colors disabled:opacity-50">
-                        {portalLoading ? 'Caricamento…' : 'Gestisci abbonamento →'}
+                        {portalLoading ? t('login.loading') : t('profile.manageSubscription')}
                       </button>
                     )}
                   </div>
@@ -231,7 +233,7 @@ export default function Header() {
                       <svg className="h-4 w-4 text-violet-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
                       </svg>
-                      Profile
+                      {t('nav.profile')}
                     </Link>
                     <button
                       onClick={handleLogout}
@@ -240,7 +242,7 @@ export default function Header() {
                       <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9" />
                       </svg>
-                      Sign out
+                      {t('nav.signout')}
                     </button>
                   </div>
                 </div>
@@ -248,7 +250,7 @@ export default function Header() {
             </div>
           ) : (
             <Link href="/login" className="shimmer-btn rounded-lg bg-gradient-to-r from-violet-600 to-cyan-500 px-4 py-1.5 text-sm font-semibold text-white hover:opacity-90 transition-opacity shadow-lg shadow-violet-500/20">
-              Sign in
+              {t('nav.signin')}
             </Link>
           )}
         </div>
@@ -288,37 +290,37 @@ export default function Header() {
                       <div className="min-w-0">
                         <p className="text-sm font-bold text-white truncate">{user.email}</p>
                         <p className="text-xs text-slate-400">
-                          Membro dal {new Date(user.created_at).toLocaleDateString('it-IT', { month: 'long', year: 'numeric' })}
+                          {t('profile.member')} {new Date(user.created_at).toLocaleDateString(undefined, { month: 'long', year: 'numeric' })}
                         </p>
                       </div>
                     </div>
                   </div>
                   <div className="px-5 py-4 border-b border-white/8 space-y-3">
                     <div className="flex items-center justify-between text-sm">
-                      <span className="text-slate-400">Piano</span>
+                      <span className="text-slate-400">{t('profile.plan')}</span>
                       {usage?.isPremium ? (
-                        <span className="rounded-full bg-gradient-to-r from-violet-600 to-cyan-500 px-3 py-0.5 text-xs font-bold text-white">✦ Premium</span>
+                        <span className="rounded-full bg-gradient-to-r from-violet-600 to-cyan-500 px-3 py-0.5 text-xs font-bold text-white">{t('profile.plan.premium')}</span>
                       ) : (
-                        <span className="rounded-full border border-white/10 px-3 py-0.5 text-xs font-semibold text-slate-300">Free</span>
+                        <span className="rounded-full border border-white/10 px-3 py-0.5 text-xs font-semibold text-slate-300">{t('profile.plan.free')}</span>
                       )}
                     </div>
                     {!usage?.isPremium && usage && (
                       <div className="space-y-1.5">
                         <div className="flex items-center justify-between text-xs text-slate-400">
-                          <span>Tasks oggi</span>
+                          <span>{t('dashboard.tasks')} oggi</span>
                           <span className="font-bold text-white">{usage.used}/{usage.limit}</span>
                         </div>
                         <div className="h-1.5 rounded-full bg-white/5 overflow-hidden">
                           <div className="h-full rounded-full bg-gradient-to-r from-violet-500 to-cyan-500 transition-all" style={{ width: `${(usage.used / usage.limit) * 100}%` }} />
                         </div>
                         <Link href="/pricing" onClick={() => setMobileOpen(false)} className="block text-center rounded-xl bg-gradient-to-r from-violet-600 to-cyan-500 py-2 text-xs font-bold text-white hover:opacity-90 transition-opacity mt-2">
-                          Upgrade a Premium →
+                          {t('profile.upgrade')}
                         </Link>
                       </div>
                     )}
                     {usage?.isPremium && (
                       <button onClick={handlePortal} disabled={portalLoading} className="w-full text-left text-sm text-violet-400 font-semibold hover:text-violet-300 transition-colors disabled:opacity-50">
-                        {portalLoading ? 'Caricamento…' : 'Gestisci abbonamento →'}
+                        {portalLoading ? t('login.loading') : t('profile.manageSubscription')}
                       </button>
                     )}
                   </div>
@@ -328,14 +330,14 @@ export default function Header() {
                       <svg className="h-4 w-4 text-violet-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
                       </svg>
-                      Profile
+                      {t('nav.profile')}
                     </Link>
                     <button onClick={handleLogout}
                       className="flex items-center gap-2 w-full rounded-xl px-3 py-2.5 text-sm font-semibold text-red-400 hover:bg-red-500/10 transition-colors">
                       <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9" />
                       </svg>
-                      Sign out
+                      {t('nav.signout')}
                     </button>
                   </div>
                 </div>
@@ -343,7 +345,7 @@ export default function Header() {
             </div>
           ) : (
             <Link href="/login" className="rounded-lg bg-gradient-to-r from-violet-600 to-cyan-500 px-3 py-1.5 text-xs font-bold text-white">
-              Sign in
+              {t('nav.signin')}
             </Link>
           )}
         </div>

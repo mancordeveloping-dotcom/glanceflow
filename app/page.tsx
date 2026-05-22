@@ -7,6 +7,7 @@ import ScrollReveal from '@/components/ScrollReveal'
 import TextInputZone from '@/components/TextInputZone'
 import Link from 'next/link'
 import React, { useState, useRef } from 'react'
+import { useLang } from '@/context/LanguageContext'
 
 /* ─── Data ─────────────────────────────────────────────── */
 
@@ -168,6 +169,7 @@ function HeroMockup() {
 export default function HomePage() {
   const [inputTab, setInputTab] = useState<'screenshot' | 'text'>('screenshot')
   const [openFaq, setOpenFaq] = useState<number | null>(null)
+  const { t } = useLang()
 
   return (
     <div className="relative">
@@ -309,7 +311,7 @@ export default function HomePage() {
       <section className="py-24 px-4">
         <div className="max-w-5xl mx-auto space-y-16">
           <ScrollReveal direction="up" className="text-center space-y-4">
-            <span className="premium-badge inline-block rounded-full px-4 py-1.5 text-xs font-bold text-violet-300">How it works</span>
+            <span className="premium-badge inline-block rounded-full px-4 py-1.5 text-xs font-bold text-violet-300">{t('home.how.badge')}</span>
             <h2 className="text-4xl sm:text-5xl font-black text-white">Three steps,<br />
               <span className="gradient-text">zero friction.</span>
             </h2>
