@@ -109,42 +109,46 @@ function HeroMockup() {
         </div>
 
         {/* Fake dashboard */}
-        <div className="bg-[#06060f] p-5 space-y-4">
+        <div className="p-5 space-y-4" style={{ background: '#0c0c18' }}>
           {/* Header row */}
           <div className="flex items-center justify-between">
-            <div className="space-y-1">
-              <div className="h-4 w-28 rounded-lg skeleton" />
-              <div className="h-2.5 w-40 rounded skeleton" />
+            <div className="space-y-1.5">
+              <div className="h-3.5 w-28 rounded-lg skeleton" />
+              <div className="h-2.5 w-36 rounded skeleton" />
             </div>
             <div className="h-7 w-20 rounded-xl skeleton" />
           </div>
           {/* Stats mini */}
           <div className="grid grid-cols-3 gap-2.5">
-            {[['12', 'Total', 'text-violet-400'], ['5', 'Pending', 'text-amber-400'], ['7', 'Done', 'text-emerald-400']].map(([v, l, c]) => (
-              <div key={l} className="glass rounded-xl p-3 text-center border border-white/5">
+            {[
+              ['12', 'Total',   'text-violet-300', 'rgba(124,58,237,0.15)',  'rgba(124,58,237,0.25)'],
+              ['5',  'Pending', 'text-amber-300',  'rgba(245,158,11,0.12)',  'rgba(245,158,11,0.22)'],
+              ['7',  'Done',    'text-emerald-300','rgba(52,211,153,0.12)',  'rgba(52,211,153,0.22)'],
+            ].map(([v, l, c, bg, border]) => (
+              <div key={l} className="rounded-xl p-3 text-center"
+                style={{ background: bg, border: `1px solid ${border}` }}>
                 <p className={`text-lg font-extrabold ${c}`}>{v}</p>
-                <p className="text-[9px] text-slate-500 mt-0.5">{l}</p>
+                <p className="text-[9px] text-slate-400 mt-0.5 font-medium">{l}</p>
               </div>
             ))}
           </div>
           {/* Task cards */}
           <div className="space-y-2">
             {[
-              { label: '◆ Task',     color: 'text-violet-400 bg-violet-500/10', title: 'Review Q1 report slides',  tag: '🔴 Urgent',  bar: 'bg-violet-500' },
-              { label: '◆ Event',    color: 'text-cyan-400 bg-cyan-500/10',     title: 'Team standup at 10:00',    tag: '📅 Today',   bar: 'bg-cyan-500' },
-              { label: '◆ Reminder', color: 'text-pink-400 bg-pink-500/10',     title: 'Send invoice to client',   tag: '🔁 Weekly',  bar: 'bg-pink-500' },
+              { label: '◆ Task',     color: 'text-violet-300', title: 'Review Q1 report slides',  tag: '🔴 Urgent',  bar: 'bg-violet-500', cardBg: 'rgba(124,58,237,0.08)', cardBorder: 'rgba(124,58,237,0.2)' },
+              { label: '◆ Event',    color: 'text-cyan-300',   title: 'Team standup at 10:00',    tag: '📅 Today',   bar: 'bg-cyan-500',   cardBg: 'rgba(6,182,212,0.08)',   cardBorder: 'rgba(6,182,212,0.2)' },
+              { label: '◆ Reminder', color: 'text-pink-300',   title: 'Send invoice to client',   tag: '🔁 Weekly',  bar: 'bg-pink-500',   cardBg: 'rgba(236,72,153,0.08)',  cardBorder: 'rgba(236,72,153,0.2)' },
             ].map((t) => (
-              <div key={t.title} className="rounded-xl overflow-hidden border border-white/5"
-                style={{ background: 'rgba(255,255,255,0.03)' }}>
-                {/* left accent bar */}
+              <div key={t.title} className="rounded-xl overflow-hidden"
+                style={{ background: t.cardBg, border: `1px solid ${t.cardBorder}` }}>
                 <div className="flex">
                   <div className={`w-1 shrink-0 ${t.bar}`} />
                   <div className="flex-1">
                     <div className={`px-3 py-1.5 flex items-center justify-between text-[10px] font-bold ${t.color}`}>
                       <span>{t.label}</span>
-                      <span className="opacity-60">{t.tag}</span>
+                      <span className="opacity-80">{t.tag}</span>
                     </div>
-                    <div className="px-3 py-2 text-[11px] text-slate-300 font-medium">{t.title}</div>
+                    <div className="px-3 py-2 text-[11px] text-slate-200 font-medium">{t.title}</div>
                   </div>
                 </div>
               </div>
@@ -177,7 +181,7 @@ export default function HomePage() {
       <div className="noise-overlay" />
 
       {/* ── Hero ────────────────────────────────────── */}
-      <section className="relative pt-4 pb-28 text-center overflow-hidden">
+      <section className="relative pt-20 sm:pt-28 pb-28 text-center overflow-hidden">
 
         {/* Aurora layer */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden>
@@ -477,20 +481,31 @@ export default function HomePage() {
               <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-2">
                 <Link
                   href="/pricing"
-                  className="shimmer-btn btn-3d inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-violet-600 to-cyan-500 px-10 py-4 text-sm font-extrabold text-white hover:opacity-90 transition-opacity shadow-xl shadow-violet-500/30"
+                  className="shimmer-btn btn-3d inline-flex items-center gap-3 rounded-2xl bg-gradient-to-r from-violet-600 to-cyan-500 px-14 py-5 text-base font-extrabold text-white hover:opacity-90 transition-opacity"
+                  style={{ boxShadow: '0 6px 0 rgba(109,40,217,0.8), 0 16px 48px rgba(139,92,246,0.5), 0 0 80px rgba(124,58,237,0.25)' }}
                 >
-                  View Plans →
+                  View Plans
+                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+                  </svg>
                 </Link>
                 <Link
                   href="/dashboard"
-                  className="inline-flex items-center gap-2 rounded-2xl border border-white/10 bg-white/5 backdrop-blur px-10 py-4 text-sm font-bold text-slate-300 hover:text-white hover:border-white/20 transition-all"
+                  className="inline-flex items-center gap-2 rounded-2xl border border-white/15 bg-white/5 backdrop-blur px-10 py-5 text-sm font-bold text-slate-300 hover:text-white hover:border-violet-500/30 hover:bg-white/8 transition-all"
                 >
-                  Start free
+                  Start free — no card
                 </Link>
               </div>
 
               {/* Social proof mini */}
-              <p className="text-xs text-slate-600 pt-2">No credit card required · Cancel anytime</p>
+              <div className="flex items-center justify-center gap-4 pt-2">
+                <span className="text-xs text-slate-600 flex items-center gap-1.5">
+                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                  No credit card required
+                </span>
+                <span className="text-slate-700">·</span>
+                <span className="text-xs text-slate-600">Cancel anytime</span>
+              </div>
             </div>
           </div>
         </ScrollReveal>

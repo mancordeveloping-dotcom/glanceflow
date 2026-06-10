@@ -16,6 +16,7 @@ export default function UploadZone() {
   const [error, setError] = useState<string | null>(null)
   const [results, setResults] = useState<Task[]>([])
   const [showPaywall, setShowPaywall] = useState(false)
+  const [dragging, setDragging] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
   const addTask = useTaskStore((s) => s.addTask)
   const router = useRouter()
@@ -25,6 +26,18 @@ export default function UploadZone() {
     if (!selected) return
     setFile(selected)
     setPreview(URL.createObjectURL(selected))
+    setState('idle')
+    setError(null)
+    setResults([])
+  }
+
+  function handleDrop(e: React.DragEvent) {
+    e.preventDefault()
+    setDragging(false)
+    const dropped = e.dataTransfer.files?.[0]
+    if (!dropped) return
+    setFile(dropped)
+    setPreview(URL.createObjectURL(dropped))
     setState('idle')
     setError(null)
     setResults([])
@@ -73,34 +86,73 @@ export default function UploadZone() {
     }
   }
 
+  const isLoading = state === 'loading'
+
   return (
     <>
       {showPaywall && <PaywallModal onClose={() => setShowPaywall(false)} />}
 
       <div className="space-y-4">
+        {/* Drop zone */}
         <div
-          onClick={() => state !== 'loading' && inputRef.current?.click()}
-          className={`w-full rounded-2xl border-2 border-dashed p-8 flex flex-col items-center gap-4 transition-all
-            ${state === 'loading'
-              ? 'cursor-not-allowed opacity-50 border-white/10 bg-white/2'
-              : 'cursor-pointer border-violet-500/30 glass hover:border-violet-400/60 hover:bg-white/5'
-            }`}
+          onClick={() => !isLoading && inputRef.current?.click()}
+          onDragOver={(e) => { e.preventDefault(); setDragging(true) }}
+          onDragLeave={() => setDragging(false)}
+          onDrop={handleDrop}
+          className={`relative w-full rounded-2xl p-8 flex flex-col items-center gap-4 transition-all duration-200 overflow-hidden
+            ${isLoading ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}
+            ${dragging ? 'scale-[1.02]' : ''}
+          `}
+          style={{
+            background: dragging
+              ? 'linear-gradient(#0e0a1f, #0e0a1f) padding-box, linear-gradient(135deg, rgba(124,58,237,0.9), rgba(6,182,212,0.9)) border-box'
+              : 'linear-gradient(#0a0a16, #0a0a16) padding-box, linear-gradient(135deg, rgba(124,58,237,0.45), rgba(6,182,212,0.35)) border-box',
+            border: '2px solid transparent',
+          }}
         >
+          {/* Glow pulse behind zone */}
+          <div className="absolute inset-0 pointer-events-none rounded-2xl transition-opacity duration-300"
+            style={{
+              background: 'radial-gradient(ellipse 80% 60% at 50% 100%, rgba(124,58,237,0.12) 0%, transparent 70%)',
+              opacity: dragging ? 1 : 0.6,
+            }} />
+
           <input ref={inputRef} type="file" accept="image/png,image/jpeg,image/webp" className="hidden" onChange={handleFileChange} />
+
           {preview ? (
-            <img src={preview} alt="Preview" className="max-h-56 rounded-xl object-contain w-full" />
+            <img src={preview} alt="Preview" className="max-h-56 rounded-xl object-contain w-full relative z-10" />
           ) : (
-            <>
-              <div className="rounded-2xl bg-violet-500/10 border border-violet-500/20 p-4">
-                <svg className="h-7 w-7 text-violet-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" />
-                </svg>
+            <div className="relative z-10 flex flex-col items-center gap-4">
+              {/* Icon */}
+              <div className="relative">
+                <div className="absolute inset-0 rounded-2xl blur-xl"
+                  style={{ background: 'linear-gradient(135deg, rgba(124,58,237,0.6), rgba(6,182,212,0.5))' }} />
+                <div className="relative rounded-2xl p-4 flex items-center justify-center"
+                  style={{ background: 'linear-gradient(135deg, rgba(124,58,237,0.25), rgba(6,182,212,0.15))', border: '1px solid rgba(124,58,237,0.3)' }}>
+                  <svg className="h-8 w-8 text-violet-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5" />
+                  </svg>
+                </div>
               </div>
-              <div className="text-center">
-                <p className="font-semibold text-white">Drop screenshot here or click to upload</p>
-                <p className="text-sm text-slate-500 mt-1">PNG, JPG, WEBP — max 10MB</p>
+
+              {/* Text */}
+              <div className="text-center space-y-1">
+                <p className="font-bold text-white text-base">
+                  {dragging ? 'Release to upload' : 'Drop any screenshot here'}
+                </p>
+                <p className="text-sm text-slate-400">
+                  WhatsApp, email, notes — any image with text
+                </p>
+                <p className="text-xs text-slate-600 mt-1">PNG · JPG · WEBP · max 10MB</p>
               </div>
-            </>
+
+              {/* Or click pill */}
+              <div className="flex items-center gap-2 mt-1">
+                <div className="h-px w-10 bg-white/10" />
+                <span className="text-xs text-slate-500 font-medium">or click to browse</span>
+                <div className="h-px w-10 bg-white/10" />
+              </div>
+            </div>
           )}
         </div>
 
@@ -108,10 +160,10 @@ export default function UploadZone() {
           <div className="flex gap-3">
             <button
               onClick={handleProcess}
-              disabled={state === 'loading'}
+              disabled={isLoading}
               className="flex-1 shimmer-btn btn-3d rounded-xl bg-gradient-to-r from-violet-600 to-cyan-500 px-5 py-3 text-sm font-bold text-white disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
-              {state === 'loading' ? (
+              {isLoading ? (
                 <>
                   <svg className="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
@@ -123,7 +175,7 @@ export default function UploadZone() {
             </button>
             <button
               onClick={handleReset}
-              disabled={state === 'loading'}
+              disabled={isLoading}
               className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-medium text-slate-400 hover:bg-white/10 disabled:opacity-40 transition-colors"
             >
               Reset

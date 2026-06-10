@@ -8,6 +8,7 @@ import type { User } from '@supabase/supabase-js'
 import Logo from '@/components/Logo'
 import { usePathname } from 'next/navigation'
 import { useLang } from '@/context/LanguageContext'
+import type { Lang } from '@/context/LanguageContext'
 
 interface UsageData {
   used: number
@@ -28,9 +29,11 @@ export default function Header() {
   const toolsRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
   const pathname = usePathname()
-  const { t } = useLang()
+  const { t, lang, setLang } = useLang()
 
   const [isDark, setIsDark] = useState(true)
+  const [langOpen, setLangOpen] = useState(false)
+  const langRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const mode = localStorage.getItem('gf-mode') ?? 'dark'
@@ -63,6 +66,7 @@ export default function Header() {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) setOpen(false)
       if (mobileDropdownRef.current && !mobileDropdownRef.current.contains(e.target as Node)) setMobileOpen(false)
       if (toolsRef.current && !toolsRef.current.contains(e.target as Node)) setToolsOpen(false)
+      if (langRef.current && !langRef.current.contains(e.target as Node)) setLangOpen(false)
     }
     document.addEventListener('mousedown', handleClick)
     return () => document.removeEventListener('mousedown', handleClick)
@@ -140,6 +144,33 @@ export default function Header() {
 
             <Link href="/pricing" className={`hover:text-white transition-colors ${pathname === '/pricing' ? 'text-white' : ''}`}>{t('nav.pricing')}</Link>
           </nav>
+
+          {/* Language switcher */}
+          <div className="relative" ref={langRef}>
+            <button
+              onClick={() => setLangOpen(v => !v)}
+              className="flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-bold text-slate-300 hover:text-white hover:border-violet-500/40 hover:bg-white/8 transition-all"
+            >
+              🌐 {lang.toUpperCase()}
+              <svg className={`h-3 w-3 transition-transform text-slate-500 ${langOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+              </svg>
+            </button>
+            {langOpen && (
+              <div className="absolute right-0 top-full mt-2 w-32 rounded-2xl border border-white/10 shadow-xl shadow-black/50 overflow-hidden z-50 animate-fade-up" style={{ background: '#111118' }}>
+                {(['en', 'it', 'es', 'fr', 'de'] as Lang[]).map((l) => (
+                  <button
+                    key={l}
+                    onClick={() => { setLang(l); setLangOpen(false) }}
+                    className={`w-full flex items-center gap-2.5 px-4 py-2.5 text-xs font-semibold transition-colors hover:bg-white/8 ${lang === l ? 'text-violet-300 bg-violet-500/10' : 'text-slate-400'}`}
+                  >
+                    <span>{l === 'en' ? '🇬🇧' : l === 'it' ? '🇮🇹' : l === 'es' ? '🇪🇸' : l === 'fr' ? '🇫🇷' : '🇩🇪'}</span>
+                    {l === 'en' ? 'English' : l === 'it' ? 'Italiano' : l === 'es' ? 'Español' : l === 'fr' ? 'Français' : 'Deutsch'}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
 
           <button
             onClick={toggleMode}
