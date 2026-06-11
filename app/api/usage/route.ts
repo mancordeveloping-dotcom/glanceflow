@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createSupabaseServer } from '@/lib/supabase-server'
 import { rateLimit, getIP, PRESETS } from '@/lib/rate-limit'
 
-const FREE_LIMIT = 3
+const FREE_LIMIT = 10
 
 export async function GET(req: NextRequest) {
   const limited = rateLimit(`usage:${getIP(req)}`, PRESETS.default)

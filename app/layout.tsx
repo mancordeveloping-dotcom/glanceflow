@@ -12,6 +12,7 @@ import PageTransition from '@/components/PageTransition'
 import MobileNav from '@/components/MobileNav'
 import PWAInstallBanner from '@/components/PWAInstallBanner'
 import Footer from '@/components/Footer'
+import LeadCapture from '@/components/LeadCapture'
 
 const geist = Geist({
   variable: '--font-geist-sans',
@@ -84,6 +85,7 @@ export default function RootLayout({
         <ToastProvider>
           <MobileNav />
           <PWAInstallBanner />
+          <LeadCapture />
           <OnboardingModal />
           <Header />
           <main className="flex-1">

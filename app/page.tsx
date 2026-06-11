@@ -8,6 +8,7 @@ import TextInputZone from '@/components/TextInputZone'
 import Link from 'next/link'
 import React, { useState, useRef } from 'react'
 import { useLang } from '@/context/LanguageContext'
+import AIDemo from '@/components/AIDemo'
 
 /* ─── Data ─────────────────────────────────────────────── */
 
@@ -357,14 +358,17 @@ export default function HomePage() {
       <section className="py-12 px-4">
         <div className="max-w-5xl mx-auto">
           <ScrollReveal direction="up" className="text-center space-y-4 mb-14">
-            <span className="premium-badge inline-block rounded-full px-4 py-1.5 text-xs font-bold text-cyan-300">Live preview</span>
-            <h2 className="text-4xl sm:text-5xl font-black text-white">See it in action.</h2>
+            <span className="premium-badge inline-block rounded-full px-4 py-1.5 text-xs font-bold text-cyan-300">Demo interattiva</span>
+            <h2 className="text-4xl sm:text-5xl font-black text-white">Guardalo in azione.</h2>
+            <p className="text-slate-400 text-base max-w-md mx-auto">
+              Screenshot di WhatsApp → 4 task estratti con priorità. In 2 secondi.
+            </p>
           </ScrollReveal>
           <ScrollReveal direction="scale">
             <div className="relative">
               <div className="absolute -inset-4 rounded-3xl pointer-events-none"
-                style={{ background: 'radial-gradient(ellipse, rgba(124,58,237,0.2) 0%, transparent 70%)', filter: 'blur(40px)' }} />
-              <MockupDemo />
+                style={{ background: 'radial-gradient(ellipse, rgba(124,58,237,0.18) 0%, transparent 70%)', filter: 'blur(40px)' }} />
+              <AIDemo />
             </div>
           </ScrollReveal>
         </div>

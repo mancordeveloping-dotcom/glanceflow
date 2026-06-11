@@ -31,8 +31,8 @@ export default function Footer() {
               {[
                 ['/', t('nav.home')],
                 ['/dashboard', t('nav.dashboard')],
-                ['/come-funziona', 'Come funziona'],
                 ['/pricing', t('nav.pricing')],
+                ['/about', 'About'],
               ].map(([href, label]) => (
                 <a key={href} href={href} className="block text-sm text-slate-500 hover:text-white transition-colors">{label}</a>
               ))}

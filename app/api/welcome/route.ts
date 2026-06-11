@@ -47,7 +47,7 @@ export async function POST(req: NextRequest) {
           </div>
 
           <p style="color: #475569; font-size: 12px; text-align: center; margin: 0;">
-            Piano gratuito: 3 screenshot al giorno.
+            Piano gratuito: 10 screenshot al giorno.
             <a href="${process.env.NEXT_PUBLIC_URL}/pricing" style="color: #a78bfa;">Upgrade a Premium →</a>
           </p>
         </div>

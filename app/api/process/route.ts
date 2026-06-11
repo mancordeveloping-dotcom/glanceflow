@@ -5,7 +5,7 @@ import { supabaseAdmin } from '@/lib/supabase-admin'
 import { rateLimit, getIP, PRESETS } from '@/lib/rate-limit'
 import type { ParsedTask } from '@/types'
 
-const FREE_LIMIT = 3
+const FREE_LIMIT = 10
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY ?? '')
 
 function friendlyError(message: string): string {
